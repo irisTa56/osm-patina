@@ -17,7 +17,9 @@ exclude = [
 # by this name at the repository root, and without it that task runs on lychee's
 # defaults with nothing printed, so this file keeps its name and place.
 
-# `.claude/` holds tracked prose (skills), and lychee skips dotdirs by default.
+# lychee skips dotdirs by default, and says nothing of it, so tracked prose
+# under one -- such as the skills planned under `.claude/skills/` -- would go
+# unchecked.
 # `.claude/worktrees/` stays out anyway: the call sites' `.` target is
 # gitignore-aware, where a `**` glob would not be.
 hidden = true
