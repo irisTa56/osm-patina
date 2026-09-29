@@ -12,6 +12,14 @@ name: Dependabot auto-merge
 # both sides are strings this repository writes, so the gate rests on nothing
 # inferred about how Dependabot names a branch.
 #
+# One thing that gate does not cover is itself. A tool that IS the gate can narrow
+# what CI checks while leaving it green -- a scanner that walks fewer commits
+# passes a clean history either way -- so such a tool needs its own version guard
+# rather than relying on this one. The actions that run the gate here (the
+# gitleaks and TruffleHog actions, mise-action) carry no such guard, and they are
+# all this repository's Dependabot entry updates, so for them a green run is the
+# only signal there is.
+#
 # PRECONDITION: this is only safe once the main ruleset requires every blocking
 # CI check (markdown-lint / secret-scan-gitleaks / secret-scan-trufflehog /
 # link-check-offline); that requirement is what makes `--auto` wait for CI.

@@ -10,7 +10,8 @@
 # `pull-request-branch-name.prefix` is what dependabot-auto-merge.yml matches
 # on, so an entry opts into auto-merge by carrying it; a lost config line then
 # stops an auto-merge rather than starting one. Give it only to an entry whose
-# updates a green CI vouches for.
+# updates can merge on a green CI alone; dependabot-auto-merge.yml says what a
+# green run leaves unchecked.
 version: 2
 updates:
   - package-ecosystem: "github-actions"
