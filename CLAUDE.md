@@ -10,24 +10,23 @@ Follow that skill when starting, working in, or closing a phase, and when record
 
 ## Keeping a developer's location private
 
-This repository is public, and a pull request keeps every pushed commit reachable after its branch is deleted.
-So nothing that reveals where a developer works is committed on any branch or published:
+This repository is public, and [a commit pushed to GitHub stays reachable](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository) after its branch is rewritten or deleted.
+So nothing that reveals where a developer works is committed on any branch or published, whether the point itself or what narrows it down, for example:
 
 - the point a developer works around, as coordinates, a bounding box, or a default value
-- what narrows that point down:
-  - the region of the data a developer works from; write "a regional extract" rather than naming it
-  - a place name near the point
-  - an image of the map around the point, such as a screenshot kept as evidence that a phase is done
-  - data cut from the area, such as a test fixture or a sample output
+- the region of the data a developer works from; write "a regional extract" rather than naming it
+- a place name near the point
+- an image of the map around the point, such as a screenshot kept as evidence that a phase is done
+- data cut from the area, such as a test fixture or a sample output
 
 Where a fixture, a screenshot, or an example needs a real area, use one picked for that purpose, unrelated to where any developer works.
 
-Research notes under `dev/research/` may hold such details, which is why `.gitignore` keeps them out of every commit.
-Before the first push of a branch, check that none of its commits carries any of the above, and squash the branch first if one does.
+Research notes under `dev/research/` may hold such details, which is why [.gitignore](.gitignore) keeps them out of every commit.
+Before every push, check that no commit it would publish carries anything of this kind, in its tree or its message, and rewrite those commits first if one does.
 
 ## Commands
 
-`mise.toml` is the task list and carries its own reasons.
+[mise.toml](mise.toml) is the task list and carries its own reasons.
 `mise install` installs the tools and the git hooks, and `mise run pre-commit` is the gate the pre-commit hook runs.
 
 ## Git workflow
@@ -43,4 +42,4 @@ Before the first push of a branch, check that none of its commits carries any of
 ## Writing conventions
 
 - Everything committed is written in English: code, comments, documents, and commit messages.
-- Prose follows [document-writing.md](https://github.com/irisTa56/dotfiles/blob/main/.claude/rules/document-writing.md).
+- Prose follows [`document-writing.md`](https://github.com/irisTa56/dotfiles/blob/main/.claude/rules/document-writing.md).
