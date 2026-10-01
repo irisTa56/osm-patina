@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 OSM Patina shows a mapper where OpenStreetMap features have gone longest without an edit.
-What it covers, what it leaves out, and the order of its phases are in [dev/ROADMAP.md](dev/ROADMAP.md).
+What it covers, what it leaves out, and the order of its phases are in [`dev/ROADMAP.md`](dev/ROADMAP.md).
 
 ## Development documents
 
@@ -21,12 +21,12 @@ So nothing that reveals where a developer works is committed on any branch or pu
 
 Where a fixture, a screenshot, or an example needs a real area, use one picked for that purpose, unrelated to where any developer works.
 
-Research notes under `dev/research/` may hold such details, which is why [.gitignore](.gitignore) keeps them out of every commit.
+Research notes under `dev/research/` may hold such details, which is why [`.gitignore`](.gitignore) keeps them out of every commit.
 Before every push, check that no commit it would publish carries anything of this kind, in its tree or its message, and rewrite those commits first if one does.
 
 ## Commands
 
-[mise.toml](mise.toml) is the task list and carries its own reasons.
+[`mise.toml`](mise.toml) is the task list and carries its own reasons.
 `mise install` installs the tools and the git hooks, and `mise run pre-commit` is the gate the pre-commit hook runs.
 
 ## Git workflow
