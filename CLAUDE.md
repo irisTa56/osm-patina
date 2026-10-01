@@ -5,7 +5,7 @@ What it covers, what it leaves out, and the order of its phases are in [dev/ROAD
 
 ## Development documents
 
-Development is steered through the documents the `dev-docs` skill describes, in that skill's default layout under `dev/`.
+Development is steered through the documents the [`dev-docs`](https://github.com/irisTa56/dotfiles/blob/main/.claude/skills/dev-docs/SKILL.md) skill describes, in that skill's default layout under `dev/`.
 Follow that skill when starting, working in, or closing a phase, and when recording a decision.
 
 ## Keeping a developer's location private
@@ -43,4 +43,4 @@ Before the first push of a branch, check that none of its commits carries any of
 ## Writing conventions
 
 - Everything committed is written in English: code, comments, documents, and commit messages.
-- In Markdown prose, a paragraph runs one sentence to a line, and no line break falls inside a sentence.
+- Prose follows [document-writing.md](https://github.com/irisTa56/dotfiles/blob/main/.claude/rules/document-writing.md).
