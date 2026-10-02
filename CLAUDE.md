@@ -21,7 +21,7 @@ So nothing that reveals where a developer works is committed on any branch or pu
 
 Where a fixture, a screenshot, or an example needs a real area, use one picked for that purpose, unrelated to where any developer works.
 
-Research notes under `dev/research/` may hold such details, which is why [`.gitignore`](.gitignore) keeps them out of every commit.
+Research notes may hold such details, which is why they are kept in the private workspace the `dev-docs` skill describes, outside this repository's working tree.
 Before every push, check that no commit it would publish carries anything of this kind, in its tree or its message, and rewrite those commits first if one does.
 
 ## Commands
