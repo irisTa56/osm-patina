@@ -1,10 +1,7 @@
 {
   "enabled": true,
   "strategy_options": {
-    "checkpoint_remote": {
-      "provider": "github",
-      "repo": "irisTa56/osm-patina-checkpoints"
-    }
+    "checkpoint_push_remote": "checkpoints"
   },
   "telemetry": false,
   "checkpoints": {
