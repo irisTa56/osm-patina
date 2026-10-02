@@ -2,9 +2,9 @@
 # `hidden = true` in `lychee.toml` would otherwise walk into them.
 .claude/worktrees/
 
-# Research working notes, never committed on any branch: they can name where
-# a developer works.
-dev/research/
+# A clone of the private checkpoint repository, holding research working
+# notes that can name where a developer works. Never committed here.
+dev/private/
 
 # mise resolves the QA tools at `latest`, so a locally generated lockfile
 # pins nothing and is never committed.
