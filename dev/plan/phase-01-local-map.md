@@ -45,7 +45,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 - **Which attribute an edit touched**: freshness is per feature, so a shop whose opening hours changed last week shows as fresh; the roadmap has no phase for it.
 - **Picking the point on the map or from the current location**: the Location phase.
 - **Downloading or updating the extract**: the developer downloads it and passes its path, which keeps this phase to the map.
-- **Assembling geometry in Rust**: a later piece of work ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)).
+- **Assembling geometry in Rust**: not in this phase ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)).
 - **Vector tiles and a layout for phones**.
 
 ## Assumptions & Risks
@@ -89,7 +89,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 
 - **osmium-tool 1.19**: selecting the rectangle and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), installed by `mise install` through the conda backend.
 - **Rust toolchain**: building and testing the program, pinned in one place that `mise install` reads.
-- **Rust crates**, chosen while building, for these purposes only:
+- **Rust crates** the program itself depends on, chosen while building, for these purposes only, with crates that only its tests use left to the building session:
   - parsing the command's arguments,
   - reading and writing JSON and the rules of R011,
   - and serving the page's files over HTTP on the local machine, if the page cannot fetch its data when opened from disk.

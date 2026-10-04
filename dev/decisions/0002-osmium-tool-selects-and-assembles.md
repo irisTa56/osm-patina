@@ -28,7 +28,7 @@ The options the two commands run with are settled while building.
 ## Rejected alternatives
 
 - **Assembling geometry in Rust on `osmpbf` now**: joining rings, assigning inner rings to outer ones, and handling broken relations would be the largest piece of the program and the likeliest to be wrong, though `elivagar`'s module is there to read, and it would stand between this phase and a map to look at.
-  - The maintainer means to write it as a crate later ([0003](0003-rust-for-the-program.md)); `osmium export`'s output on the same input is then what that crate is tested against.
+  - The maintainer is open to writing it as a crate later ([0003](0003-rust-for-the-program.md)).
 - **The `libosmium` crate**: it reaches the same assembler without a second process, but through a binding nobody maintains and a C++ build.
 - **pyosmium**: it would do all three steps in one process and add no command-line tool, but it means a program in Python, which [0003](0003-rust-for-the-program.md) turns down.
 
