@@ -39,7 +39,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 
 ### Out of scope
 
-- **Dating a feature by its newest part**: a way's `timestamp` does not change when only its nodes move, and a multipolygon's is its relation's own, so a reshaped feature shows an older date than its shape deserves.
+- **Counting a fixed shape as an edit**: a way's `timestamp` does not change when only its nodes move, and a multipolygon's is its relation's own, so a reshaped feature shows an older date than its shape deserves.
   - Roland Olbricht's [Handling Timestamps in OpenStreetMap](https://dev.overpass-api.de/misc/timestamps.pdf) (2018) found that 20% to 30% of the ways changed in a period kept their version (checked 2026-10-03).
   - This goes to the Vertex-aware freshness phase.
 - **Which attribute an edit touched**: freshness is per feature, so a shop whose opening hours changed last week shows as fresh; the roadmap has no phase for it.
@@ -52,7 +52,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 
 - **A001**: A Geofabrik extract keeps every object's `version` and `timestamp`. Source: `osmium fileinfo -e` on the Kanto extract, run 2026-10-04 ([0001](../decisions/0001-regional-extract-as-data-source.md)).
   - Risk: features come out without a date, noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
-- **A002**: `osmium export` writes each feature's type, id, version, and timestamp, the last as seconds since 1970. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
+- **A002**: `osmium export` writes each feature's type, id, version, and timestamp. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
   - Risk: the page has no number to colour by, noticed by the end-to-end test.
 - **A003**: A dense 5 km square holds up to about 160,000 features before the scope narrows them. Source: the stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut), a 5 km square in central London about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: a denser area exceeds what A004 was measured on, noticed by its page missing R008's times.
@@ -76,12 +76,11 @@ A mapper looking at the page sees which features have gone longest without one, 
 - [0001. A regional extract kept on disk is the data source](../decisions/0001-regional-extract-as-data-source.md)
 - [0002. osmium-tool selects the area and assembles geometry](../decisions/0002-osmium-tool-selects-and-assembles.md)
 - [0003. The program is written in Rust](../decisions/0003-rust-for-the-program.md)
-- GeoJSON in one file for each kind of geometry rather than vector tiles built with tippecanoe, because A004's measurement is within R008, and tiles would add tippecanoe and a server that answers range requests.
-  - One file for each kind rather than one for all, because each kind then appears as soon as it is ready.
+- GeoJSON rather than vector tiles built with tippecanoe, because A004's measurement is within R008, and tiles would add tippecanoe and a server that answers range requests.
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
   - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features, and a Protomaps archive needs a server that answers range requests (checked 2026-10-03).
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
-  - A feature the list admits is still left out when it is tagged as indoor, other than `indoor=no`, since a shop inside a building carries the same `shop` key as one on the street.
+  - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
   - Which keys stand for each of the scope's kinds of feature is settled while building.
 - Test fixtures are OSM files written by hand rather than cut from a real area, because data cut from OSM would bring its licence into the repository.
 - The scale check and the screenshots use a stand-in area the maintainer picked for the purpose, a 5 km square centred on Tokyo Station, cut from Geofabrik's [Kanto extract](https://download.geofabrik.de/asia/japan/kanto.html), because they need real data and R007 rules out a developer's own point.

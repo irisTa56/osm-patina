@@ -6,7 +6,7 @@
 ## Context
 
 The map needs every feature in a rectangle up to 5 km on its long side, each with the `version` and `timestamp` of the OSM object it comes from.
-Vertex-aware freshness, a later phase, dates a way by its newest node, so it needs the `timestamp` of untagged nodes as well.
+A later phase, Vertex-aware freshness, counts a fixed shape as an edit ([roadmap](../ROADMAP.md#phases)), and a way's shape is fixed by moving its nodes, most of them untagged, so their `timestamp` matters as well.
 A square of that size in a dense city centre holds between about 90,000 and 160,000 features ([phase 01 plan](../plan/phase-01-local-map.md#assumptions--risks), A003).
 
 - Geofabrik's regional extracts keep both fields on every object and are rebuilt once a day.
@@ -29,7 +29,7 @@ Building the map for another rectangle inside the same extract makes no network 
 
 ## Rejected alternatives
 
-- **SliceOSM**: it would hand over the rectangle alone, minutes old, with no large download and nothing to cut, but its untagged nodes carry no timestamp, so Vertex-aware freshness would have to change source.
+- **SliceOSM**: it would hand over the rectangle alone, minutes old, with no large download and nothing to cut, but its untagged nodes carry no timestamp, so it has nothing to tell Vertex-aware freshness when a shape was fixed.
 - **Overpass API with `out meta`**: a fetch of the largest area fits its one-off allowance but not its regular one, the instance is overloaded by its own account, and nothing shows that such a fetch completes.
   - Its fresher data does not outweigh that, since a map of features unedited for years loses little from being a day old.
 - **ohsome API**: the map would work only on a machine that holds a key.

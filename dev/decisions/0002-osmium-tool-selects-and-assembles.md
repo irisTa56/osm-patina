@@ -39,4 +39,4 @@ The options the two commands run with are settled while building.
   - It leaves features out and brings others in without an error, and not every such case is known, which would show as a difference between the objects that go in and the features that come out.
   - A new osmium-tool release could change its output, which the end-to-end test on the fixture would show as a failure.
   - conda-forge has no `linux-aarch64` build of osmium-tool, so `mise install` would fail on such a machine.
-  - A relation's `timestamp` is its own and a way's does not change when only its nodes move, so dating a feature by its newest part means reading the cut PBF in Rust as well, which `osmpbf` allows.
+  - What `osmium export` writes carries each feature's own `timestamp` and not its nodes', so work that needs the nodes' has to read the cut PBF as well, which `osmpbf` allows.
