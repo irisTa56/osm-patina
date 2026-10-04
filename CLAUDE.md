@@ -18,7 +18,7 @@ So nothing that reveals where a developer works is committed on any branch or pu
 - an image of the map around the point, such as a screenshot kept as evidence that a phase is done
 - data cut from the area, such as a test fixture or a sample output
 
-A region that spans several prefectures, states, or their equivalent narrows the point too little to count, so naming it, or an extract that covers it, is fine.
+A region as broad as a prefecture, a state, or their equivalent narrows the point too little to count, so naming it, or an extract that covers it, is fine.
 An extract of anything narrower, such as one city, is named no more than a place near the point is.
 The rule is about what is committed or published, and what a developer's machine requests from a service while they work is outside it.
 
