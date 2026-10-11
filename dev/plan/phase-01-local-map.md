@@ -54,7 +54,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Risk: features come out without a date, noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
 - **A002**: `osmium export` writes each feature's type, id, version, and timestamp. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
   - Risk: the page has no number to colour by, noticed by the end-to-end test.
-- **A003**: A 5 km square denser than the stand-in area holds up to about 160,000 features before the scope narrows them, half as many again as R008 is stated for. Source: the stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut), a 5 km square in central London about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
+- **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the stand-in area, which R008 is stated for. Source: the stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut), a 5 km square in central London about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: a still denser area exceeds what A004 was measured on, noticed by its page taking longer than R008's times.
 - **A004**: MapLibre GL JS draws A003's count from GeoJSON within R008's times when the features are split by kind, on a bare page. Source: the features of A003's denser square, 55 MB of GeoJSON in three files over the base map, MapLibre GL JS 6.11.2, Chromium on an Apple M3, two runs on 2026-10-04.
   - After the base map showed, the first kind appeared within 1.2 to 1.7 seconds and all three within 1.8 to 2.3 seconds; for the stand-in area's 41 MB they took 0.9 to 1.0 and 1.4 to 1.5 seconds.
@@ -98,19 +98,37 @@ A mapper looking at the page sees which features have gone longest without one, 
 
 ## Done when
 
-- **Built from a fixture, the map's data holds each feature R002 says is drawn, once, with its type, id, version, and timestamp, and no other** — verifies R001, R002, A002.
-  - Check: an end-to-end test runs the command on a hand-written extract and compares the result.
+- **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002.
+  - Each such feature is there once, with its type, id, version, and timestamp.
+  - A feature R002 says is not drawn is absent.
+  - Check: an end-to-end test runs the command on a hand-written extract and compares the result with what the extract was written to hold.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: a test runs the command on the fixture with a second set of rules, one added and one removed, and compares the result.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
-- **The page shows the stand-in area coloured by last-edit date with a legend, over the base map with its names above the features, and a selected feature shows its details and opens on openstreetmap.org** — verifies R003, R004, R006, R010, A008.
-  - Check: build the stand-in area, open the page, select one point, one line, and one area, and follow each link; both credits are in a corner with their links, before and after panning; with requests to the base map's service blocked, the features are still drawn.
-- **The stand-in area builds and shows within R008's times, with the date of the data on the page, and no feature is missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
-  - Check: `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp; time the command, and on the page the first and the last kind of feature after the base map shows; pan while they load; record the machine and the number of features.
-  - Check: count the tagged objects that go into the build and the features that come out, and record what accounts for the difference under R002 and the rules.
-- **After a build, the working tree is clean** — verifies R007.
-  - Check: `git status --short` prints nothing after building the stand-in area, and no tracked file holds a coordinate other than the fixture's and the stand-in area's.
+- **The page shows the features coloured by last-edit date over the base map, and a selected feature leads to its object** — verifies R003, R004, R006, R010, A008.
+  - Points, lines, and areas are coloured by last-edit date, and a legend says which date each colour stands for.
+  - The base map shows under them, with its names above the features.
+  - A selected point, line, and area each show their details, and the link of each opens that object on openstreetmap.org.
+  - Both credits are in a corner with their links, before and after panning.
+  - While the base map's service does not answer, the features are still drawn.
+  - Check: build the stand-in area, open the page, and look.
+    - Select one feature of each kind and follow its link.
+    - For the last line, open the page with requests to the base map's service blocked.
+- **The stand-in area builds and shows within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
+  - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
+  - The command finishes within R008's time.
+  - After the base map shows, the first and the last kind of feature appear within R008's times, and the map answers panning while they load.
+  - The page states the date of the data.
+  - R002 and the rules account for every tagged object that goes into the build and is not among the features that come out.
+  - Check: on a developer's machine, with the machine and the number of features recorded.
+    - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
+    - Time the command, and on the page the first and the last kind of feature after the base map shows, and pan while they load.
+    - Count the tagged objects that go into the build and the features that come out, and record what accounts for the difference.
+- **A build leaves nothing in the repository that tells where a developer works** — verifies R007.
+  - The working tree is clean after a build.
+  - No tracked file holds a coordinate other than the fixture's and the stand-in area's.
+  - Check: `git status --short` prints nothing after building the stand-in area, and the tracked files are searched for coordinates.
 - **CI passes with the Rust checks and the end-to-end test among its jobs** — verifies R009, A006.
   - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`.
 
