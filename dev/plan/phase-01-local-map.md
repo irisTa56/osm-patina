@@ -34,6 +34,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Once the base map shows, the first kind of feature appears within 3 seconds and all of them within 5 seconds.
   - The map answers panning and zooming while the features load.
 - **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)), and its automated checks run in `mise run pre-commit` and in CI.
+  - The tests that drive the page in a browser are meant to run in CI as well, and where that proves not to work, the maintainer accepts running them on a developer's machine alone (said 2026-10-11).
 - **R010**: The features are drawn over a base map in muted colours, with its place and street names above them.
   - When the base map's service does not answer, the features are still drawn.
   - The base map's data has its own date, so a recent building can be on one layer and not the other.
@@ -80,6 +81,11 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Its [terms](https://openfreemap.org/tos/) say the service may be discontinued at any time.
   - Risk: the base map disappears, noticed by features drawn on a blank page.
     - Another style URL replaces it.
+- **A009**: A test written in Rust can drive the page in a headless browser and read what the page checks below need. Source: a trial with [`headless_chrome`](https://docs.rs/headless_chrome/1.0.22) 1.0.22 and Google Chrome 154 on macOS, on a page of MapLibre GL JS 6.11.2 over the base map with two hand-written features, run 2026-10-11. Unverified on Linux; the [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md) lists Google Chrome (checked 2026-10-11).
+  - The trial read the rendered features with their type, id, version, and timestamp, the legend, the credits with their links, and the order of the layers, selected a feature through the browser's input, and cut the page off from the base map's service.
+  - Risk: something the phase must check cannot be reached that way, noticed by a check below that ends up done by hand.
+  - Risk: headless Chrome on CI's runner cannot draw the map, noticed by the tests of the page failing in CI alone.
+    - R009 then leaves them to a developer's machine.
 
 ## Decisions
 
@@ -93,6 +99,9 @@ A mapper looking at the page sees which features have gone longest without one, 
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
   - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
   - Which keys stand for each of the scope's kinds of feature is settled while building.
+- What a test that drives the page can check is checked that way rather than by eye, because the test goes on guarding the behaviour after the phase closes.
+  - What is left to the eye is what only an eye judges, that the base map is muted and its names can be read above the features, and what needs the stand-in area's data, which is not in the repository.
+- The tests that drive the page are written in Rust rather than on Node with Playwright or Puppeteer, because the maintainer chose Rust for them (said 2026-10-11): they continue the end-to-end test that runs the command, and Node would add a toolchain and a `package.json` the repository does not have.
 - Test fixtures are OSM files written by hand rather than cut from a real area, because data cut from OSM would bring its licence into the repository.
 - The scale check and the screenshots use a stand-in area the maintainer picked for the purpose, a 5 km square centred on Tokyo Station, cut from Geofabrik's [Kanto extract](https://download.geofabrik.de/asia/japan/kanto.html), because they need real data and R007 rules out a developer's own point.
 
@@ -104,6 +113,8 @@ A mapper looking at the page sees which features have gone longest without one, 
   - parsing the command's arguments,
   - reading and writing JSON and the rules of R011,
   - and serving the page's files over HTTP on the local machine, if the page cannot fetch its data when opened from disk.
+- **Google Chrome**, for tests only: the browser the tests of the page drive (A009), as a developer's machine and CI's runner image have it installed.
+  - The crate that drives it is chosen while building.
 - **MapLibre GL JS 6.11** (BSD-3-Clause): drawing the map, pinned to an exact release.
 - **OpenFreeMap**: the base map's style and tiles, requested by the page when it is viewed.
 
@@ -117,15 +128,19 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Check: a test runs the command on the fixture with a second set of rules, one added and one removed, and compares the result.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
-- **The page shows the features coloured by last-edit date over the base map, and a selected feature leads to its object** — verifies R003, R004, R006, R010, A008.
-  - Points, lines, and areas are coloured by last-edit date, and a legend says which date each colour stands for.
-  - The base map shows under them, with its names above the features.
-  - A selected point, line, and area each show their details, and the link of each opens that object on openstreetmap.org.
-  - Both credits are in a corner with their links, before and after panning.
+- **The page shows each feature by its last-edit date, and a selected feature leads to its object** — verifies R003, R004, R005, R006, R010, A009.
+  - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
+  - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
+  - The page states the date of the data.
+  - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
+  - Check: an automated test builds the fixture's map and drives its page in a headless browser.
+    - It works out each date, detail, and link from what the fixture was written to hold.
+    - It does not depend on the base map's service answering.
+- **To the eye, the stand-in area's features read over the base map** — verifies R006, R010, A008.
+  - The base map shows under the features in muted colours, with its place and street names above them.
+  - The base map's own credit is beside OpenStreetMap's.
   - Check: build the stand-in area, open the page, and look.
-    - Select one feature of each kind and follow its link.
-    - For the last line, open the page with requests to the base map's service blocked.
 - **The stand-in area builds and shows within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
   - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
   - The command finishes within R008's time.
@@ -140,8 +155,9 @@ A mapper looking at the page sees which features have gone longest without one, 
   - The working tree is clean after a build.
   - No tracked file holds a coordinate other than the fixture's and the stand-in area's.
   - Check: `git status --short` prints nothing after building the stand-in area, and the tracked files are searched for coordinates.
-- **CI passes with the Rust checks and the end-to-end test among its jobs** — verifies R009, A006.
-  - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`.
+- **CI passes with the Rust checks and the end-to-end test among its jobs** — verifies R009, A006, A009.
+  - The tests of the page pass there as well, or on a developer's machine alone where CI's browser cannot draw the map.
+  - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`, and for tests left to a developer's machine, a run of them there.
 
 ## Open questions
 
