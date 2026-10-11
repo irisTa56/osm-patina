@@ -100,8 +100,12 @@ A mapper looking at the page sees which features have gone longest without one, 
   - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
   - Which keys stand for each of the scope's kinds of feature is settled while building.
 - What a test that drives the page can check is checked that way rather than by eye, because the test goes on guarding the behaviour after the phase closes.
-  - What is left to the eye is what only an eye judges, that the base map is muted and its names can be read above the features, and what needs the stand-in area's data, which is not in the repository.
-- The tests that drive the page are written in Rust rather than on Node with Playwright or Puppeteer, because the maintainer chose Rust for them (said 2026-10-11): they continue the end-to-end test that runs the command, and Node would add a toolchain and a `package.json` the repository does not have.
+  - Three things are left to the eye:
+    - what only an eye judges, that the base map is muted and its names can be read above the features;
+    - what shows only while the base map's service answers, such as its own credit, since a test that waited on that service would fail whenever it did not answer;
+    - and what needs the stand-in area's data, which is not in the repository.
+- The tests that drive the page are written in Rust rather than on Node with Playwright or Puppeteer, because they continue the end-to-end test that runs the command, and Node would add a toolchain and a `package.json` the repository does not have.
+  - The maintainer chose Rust for them (said 2026-10-11).
 - Test fixtures are OSM files written by hand rather than cut from a real area, because data cut from OSM would bring its licence into the repository.
 - The scale check and the screenshots use a stand-in area the maintainer picked for the purpose, a 5 km square centred on Tokyo Station, cut from Geofabrik's [Kanto extract](https://download.geofabrik.de/asia/japan/kanto.html), because they need real data and R007 rules out a developer's own point.
 
@@ -139,16 +143,17 @@ A mapper looking at the page sees which features have gone longest without one, 
     - It does not depend on the base map's service answering.
 - **To the eye, the stand-in area's features read over the base map** — verifies R006, R010, A008.
   - The base map shows under the features in muted colours, with its place and street names above them.
-  - The base map's own credit is beside OpenStreetMap's.
+  - The base map's own credit is beside OpenStreetMap's, before and after panning.
   - Check: build the stand-in area, open the page, and look.
 - **The stand-in area builds and shows within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
   - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
   - The command finishes within R008's time.
   - After the base map shows, the first and the last kind of feature appear within R008's times, and the map answers panning while they load.
-  - The page states the date of the data.
+  - The page states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features that come out.
   - Check: on a developer's machine, with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
+    - Compare the date on the page with that replication timestamp.
     - Time the command, and on the page the first and the last kind of feature after the base map shows, and pan while they load.
     - Count the tagged objects that go into the build and the features that come out, and record what accounts for the difference.
 - **A build leaves nothing in the repository that tells where a developer works** — verifies R007.
