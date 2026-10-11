@@ -7,7 +7,7 @@
 
 The map needs every feature in a rectangle up to 5 km on its long side, each with the `version` and `timestamp` of the OSM object it comes from.
 A later phase, Vertex-aware freshness, counts a fixed shape as an edit ([roadmap](../ROADMAP.md#phases)), and a way's shape is fixed by moving its nodes, most of them untagged, so their `timestamp` matters as well.
-A square of that size in a dense city centre holds between about 90,000 and 160,000 features ([phase 01 plan](../plan/phase-01-local-map.md#assumptions--risks), A003).
+The four squares of that size counted in dense city centres held between about 92,000 and 158,000 features ([phase 01 plan](../plan/phase-01-local-map.md#assumptions--risks), A003).
 
 - Geofabrik's regional extracts keep both fields on every object and are rebuilt once a day.
   - Its [technical notes](https://download.geofabrik.de/technical.html) say the files "contain all data and metadata available in OSM for the region" except history, and that only "the user, uid and changeset fields are missing" (checked 2026-10-03).
