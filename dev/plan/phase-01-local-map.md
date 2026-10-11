@@ -68,6 +68,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Risk: a slower machine, or the page's own work on top of this bare one, misses R008, noticed by the scale check.
     - Building vector tiles instead would be a change to this plan.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
+  - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp.
     - The file's own date would be the fallback.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
@@ -132,9 +133,10 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Check: a test runs the command on the fixture with a second set of rules, one added and one removed, and compares the result.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
-- **The page shows each feature by its last-edit date and leads from it to its object, with OpenStreetMap's credit, and draws the features without the base map** — verifies R003, R004, R006, R010, A009.
+- **The page shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R003, R004, R005, R006, R010, A005, A009.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
+  - The page states the date of the data.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
   - Check: an automated test builds the fixture's map and drives its page in a headless browser.
@@ -161,8 +163,9 @@ A mapper looking at the page sees which features have gone longest without one, 
   - The working tree is clean after a build.
   - No tracked file holds a coordinate other than the fixture's and the stand-in area's.
   - Check: `git status --short` prints nothing after building the stand-in area, and the tracked files are searched for coordinates.
-- **CI passes with the Rust checks and the end-to-end test among its jobs** — verifies R009, A006, A009.
-  - The tests of the page pass there as well, or on a developer's machine alone where CI's browser cannot draw the map.
+- **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A009.
+  - The Rust checks and the end-to-end test pass there.
+  - The tests of the page pass there as well, or on a developer's machine alone where running them in CI proves not to work.
   - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`, and for tests left to a developer's machine, a run of them there.
 
 ## Open questions
