@@ -132,19 +132,20 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Check: a test runs the command on the fixture with a second set of rules, one added and one removed, and compares the result.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
-- **The page shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, whether or not the base map answers** — verifies R003, R004, R005, R006, R010, A009.
+- **The page shows each feature by its last-edit date and leads from it to its object, with OpenStreetMap's credit, and draws the features without the base map** — verifies R003, R004, R006, R010, A009.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
-  - The page states the date of the data.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
   - Check: an automated test builds the fixture's map and drives its page in a headless browser.
     - It works out each date, detail, and link from what the fixture was written to hold.
     - It waits on no host other than the machine it runs on.
-- **To the eye, the stand-in area's features read over the base map** — verifies R006, R010, A008.
+- **To the eye, the stand-in area's page reads and answers over the base map** — verifies R004, R006, R010, A008.
   - The base map shows under the features in muted colours, with its place and street names above them.
   - The base map's own credit is beside OpenStreetMap's, before and after panning.
+  - A selected point, line, and area each show their details there as well, and the link of each opens that object on openstreetmap.org.
   - Check: build the stand-in area, open the page, and look.
+    - Select one feature of each kind and follow its link.
 - **The stand-in area builds and shows within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
   - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
   - The command finishes within R008's time.
