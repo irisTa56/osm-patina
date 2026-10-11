@@ -81,7 +81,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Its [terms](https://openfreemap.org/tos/) say the service may be discontinued at any time.
   - Risk: the base map disappears, noticed by features drawn on a blank page.
     - Another style URL replaces it.
-- **A009**: A test written in Rust can drive the page in a headless browser and read what the page checks below need. Source: a trial with [`headless_chrome`](https://docs.rs/headless_chrome/1.0.22) 1.0.22 and Google Chrome 154 on macOS, on a page of MapLibre GL JS 6.11.2 over the base map with two hand-written features, run 2026-10-11. Unverified on Linux; the [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md) lists Google Chrome (checked 2026-10-11).
+- **A009**: A test written in Rust can drive the page in a headless browser and read what the page checks below need. Source: a trial with [`headless_chrome`](https://docs.rs/headless_chrome/1.0.22) 1.0.22 and Google Chrome 154 on macOS, on a page of MapLibre GL JS 6.11.2 over the base map with two hand-written features, run 2026-10-11. Unverified on Linux; the [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists Google Chrome (checked 2026-10-11).
   - The trial read the rendered features with their type, id, version, and timestamp, the legend, the credits with their links, and the order of the layers, selected a feature through the browser's input, and cut the page off from the base map's service.
   - Risk: something the phase must check cannot be reached that way, noticed by a check below that ends up done by hand.
   - Risk: headless Chrome on CI's runner cannot draw the map, noticed by the tests of the page failing in CI alone.
@@ -117,7 +117,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - parsing the command's arguments,
   - reading and writing JSON and the rules of R011,
   - and serving the page's files over HTTP on the local machine, if the page cannot fetch its data when opened from disk.
-- **Google Chrome**, for tests only: the browser the tests of the page drive (A009), as a developer's machine and CI's runner image have it installed.
+- **Google Chrome**, for tests only: the browser the tests of the page drive (A009), taken as already installed on a developer's machine and on CI's runner.
   - The crate that drives it is chosen while building.
 - **MapLibre GL JS 6.11** (BSD-3-Clause): drawing the map, pinned to an exact release.
 - **OpenFreeMap**: the base map's style and tiles, requested by the page when it is viewed.
@@ -140,7 +140,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - While the base map's service does not answer, the features are still drawn.
   - Check: an automated test builds the fixture's map and drives its page in a headless browser.
     - It works out each date, detail, and link from what the fixture was written to hold.
-    - It does not depend on the base map's service answering.
+    - It waits on no host other than the machine it runs on.
 - **To the eye, the stand-in area's features read over the base map** — verifies R006, R010, A008.
   - The base map shows under the features in muted colours, with its place and street names above them.
   - The base map's own credit is beside OpenStreetMap's, before and after panning.
