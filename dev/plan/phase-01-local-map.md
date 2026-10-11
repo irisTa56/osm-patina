@@ -107,6 +107,7 @@ A mapper looking at the page sees which features have gone longest without one, 
     - and what needs the stand-in area's data, which is not in the repository.
 - The tests that drive the page are written in Rust rather than on Node with Playwright or Puppeteer, because they continue the end-to-end test that runs the command, and Node would add a toolchain and a `package.json` the repository does not have.
   - The maintainer chose Rust for them (said 2026-10-11).
+- The page loads MapLibre GL JS from where the page itself is served rather than from a CDN, because with a CDN neither the page nor its test works while the CDN does not answer.
 - Test fixtures are OSM files written by hand rather than cut from a real area, because data cut from OSM would bring its licence into the repository.
 - The scale check and the screenshots use a stand-in area the maintainer picked for the purpose, a 5 km square centred on Tokyo Station, cut from Geofabrik's [Kanto extract](https://download.geofabrik.de/asia/japan/kanto.html), because they need real data and R007 rules out a developer's own point.
 
@@ -121,6 +122,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 - **Google Chrome**, for tests only: the browser the tests of the page drive (A009), taken as already installed on a developer's machine and on CI's runner.
   - The crate that drives it is chosen while building.
 - **MapLibre GL JS 6.11** (BSD-3-Clause): drawing the map, pinned to an exact release.
+  - The page loads it from the files the command serves and not from a CDN, and how those files come to be there is settled while building.
 - **OpenFreeMap**: the base map's style and tiles, requested by the page when it is viewed.
 
 ## Done when
@@ -171,5 +173,4 @@ A mapper looking at the page sees which features have gone longest without one, 
 ## Open questions
 
 - Whether the colour scale is fixed dates or follows the dates found in the area: decided while building, looking at the stand-in area.
-- Whether MapLibre GL JS is loaded from a CDN or kept in the repository.
 - Whether the Rust toolchain is pinned in `mise.toml` or in `rust-toolchain.toml`.
