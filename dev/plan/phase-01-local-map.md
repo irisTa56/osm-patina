@@ -132,7 +132,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Check: a test runs the command on the fixture with a second set of rules, one added and one removed, and compares the result.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
-- **The page shows each feature by its last-edit date, and a selected feature leads to its object** — verifies R003, R004, R005, R006, R010, A009.
+- **The page shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, whether or not the base map answers** — verifies R003, R004, R005, R006, R010, A009.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - The page states the date of the data.
@@ -148,13 +148,13 @@ A mapper looking at the page sees which features have gone longest without one, 
 - **The stand-in area builds and shows within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
   - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
   - The command finishes within R008's time.
-  - After the base map shows, the first and the last kind of feature appear within R008's times, and the map answers panning while they load.
+  - After the base map shows, the first and the last kind of feature appear within R008's times, and the map answers panning and zooming while they load.
   - The page states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features that come out.
   - Check: on a developer's machine, with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date on the page with that replication timestamp.
-    - Time the command, and on the page the first and the last kind of feature after the base map shows, and pan while they load.
+    - Time the command, and on the page the first and the last kind of feature after the base map shows, and pan and zoom while they load.
     - Count the tagged objects that go into the build and the features that come out, and record what accounts for the difference.
 - **A build leaves nothing in the repository that tells where a developer works** — verifies R007.
   - The working tree is clean after a build.
