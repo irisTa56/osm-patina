@@ -83,7 +83,8 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Risk: the base map disappears, noticed by features drawn on a blank page.
     - Another style URL replaces it.
 - **A009**: A test written in Rust can drive the page in a headless browser and read what the page checks below need. Source: a trial with [`headless_chrome`](https://docs.rs/headless_chrome/1.0.22) 1.0.22 and Google Chrome 154 on macOS, on a page of MapLibre GL JS 6.11.2 over the base map with two hand-written features, run 2026-10-11. Unverified on Linux; the [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists Google Chrome (checked 2026-10-11).
-  - The trial read the rendered features with their type, id, version, and timestamp, the legend, the credits with their links, and the order of the layers, selected a feature through the browser's input, and cut the page off from the base map's service.
+  - The trial read the rendered features with their type, id, version, and timestamp, the colour one is drawn in, the legend's text, the credits with their links, and the order of the layers.
+  - It selected a feature through the browser's input, read the credits again after the map was panned, and cut the page off from the base map's service.
   - Risk: something the phase must check cannot be reached that way, noticed by a check below that ends up done by hand.
   - Risk: headless Chrome on CI's runner cannot draw the map, noticed by the tests of the page failing in CI alone.
     - R009 then leaves them to a developer's machine.
