@@ -144,6 +144,7 @@ A mapper looking at the page sees which features have gone longest without one, 
   - While the base map's service does not answer, the features are still drawn.
   - Check: an automated test builds the fixture's map and drives its page in a headless browser.
     - It works out each date, detail, and link from what the fixture was written to hold.
+    - It compares the colour each feature is drawn in with the colour the legend gives for that feature's date, which is the same for a point, a line, and an area of one date.
     - It waits on no host other than the machine it runs on.
 - **To the eye, the stand-in area's page reads and answers over the base map** — verifies R003, R004, R006, R010, A008.
   - The stand-in area's features are coloured by last-edit date, with the legend, and those longest without an edit can be told from the rest.
