@@ -13,8 +13,10 @@ A mapper looking at the page sees which features have gone longest without one, 
 - **R001**: Given a regional extract on disk, a centre point, and a width and height, one command builds the map of that rectangle and says how to open it.
   - A rectangle whose long side exceeds 5 km is refused, with a message that says so.
 - **R002**: The page draws the features in the rectangle that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once.
-  - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary; a relation of any other type is not a feature.
-  - A feature is in the rectangle when one of its nodes is, and it is then drawn whole, past the rectangle's edge; one with every node outside is not drawn.
+  - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
+    - A relation of any other type is not a feature.
+  - A feature is in the rectangle when one of its nodes is, and it is then drawn whole, past the rectangle's edge.
+    - One with every node outside is not drawn.
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
   - A feature osmium-tool does not produce for the rectangle is not drawn, which the maintainer accepted as a limit of this phase on 2026-10-04.
     - The cases known are a feature with no node inside the rectangle, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
@@ -28,9 +30,9 @@ A mapper looking at the page sees which features have gone longest without one, 
   - The centre point comes from outside the tracked files, and no tracked file gives it a default.
   - Everything the command writes goes where git ignores it, since it is cut from the developer's area.
 - **R008**: At the stand-in area, a 5 km square of about 108,000 features, on a developer's machine, the command and the page keep to these times:
-  - the command finishes within 15 seconds from an extract of about 500 MB;
-  - once the base map shows, the first kind of feature appears within 3 seconds and all of them within 5 seconds;
-  - and the map answers panning and zooming while the features load.
+  - The command finishes within 15 seconds from an extract of about 500 MB.
+  - Once the base map shows, the first kind of feature appears within 3 seconds and all of them within 5 seconds.
+  - The map answers panning and zooming while the features load.
 - **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)), and its automated checks run in `mise run pre-commit` and in CI.
 - **R010**: The features are drawn over a base map in muted colours, with its place and street names above them.
   - When the base map's service does not answer, the features are still drawn.
@@ -42,7 +44,8 @@ A mapper looking at the page sees which features have gone longest without one, 
 - **Counting a fixed shape as an edit**: a way's `timestamp` does not change when only its nodes move, and a multipolygon's is its relation's own, so a reshaped feature shows an older date than its shape deserves.
   - Roland Olbricht's [Handling Timestamps in OpenStreetMap](https://dev.overpass-api.de/misc/timestamps.pdf) (2018) found that 20% to 30% of the ways changed in a period kept their version (checked 2026-10-03).
   - This goes to the Vertex-aware freshness phase.
-- **Which attribute an edit touched**: freshness is per feature, so a shop whose opening hours changed last week shows as fresh; the roadmap has no phase for it.
+- **Which attribute an edit touched**: freshness is per feature, so a shop whose opening hours changed last week shows as fresh.
+  - The roadmap has no phase for it.
 - **Picking the point on the map or from the current location**: the Location phase.
 - **Downloading or updating the extract**: the developer downloads it and passes its path, which keeps this phase to the map.
 - **Assembling geometry in Rust**: not in this phase ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)).
@@ -54,22 +57,29 @@ A mapper looking at the page sees which features have gone longest without one, 
   - Risk: features come out without a date, noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
 - **A002**: `osmium export` writes each feature's type, id, version, and timestamp. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
   - Risk: the page has no number to colour by, noticed by the end-to-end test.
-- **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the stand-in area, which R008 is stated for. Source: the stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut), a 5 km square in central London about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
+- **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the stand-in area, which R008 is stated for. Source: counts of the four squares.
+  - The stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
+  - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: a still denser area exceeds what A004 was measured on, noticed by its page taking longer than R008's times.
 - **A004**: MapLibre GL JS draws A003's count from GeoJSON within R008's times when the features are split by kind, on a bare page. Source: the features of A003's denser square, 55 MB of GeoJSON in three files over the base map, MapLibre GL JS 6.11.2, Chromium on an Apple M3, two runs on 2026-10-04.
   - After the base map showed, the first kind appeared within 1.2 to 1.7 seconds and all three within 1.8 to 2.3 seconds; for the stand-in area's 41 MB they took 0.9 to 1.0 and 1.4 to 1.5 seconds.
   - The main thread's longest block was 0.6 seconds, while the base map loaded on the first run.
-  - Risk: a slower machine, or the page's own work on top of this bare one, misses R008, noticed by the scale check; building vector tiles instead would be a change to this plan.
+  - Risk: a slower machine, or the page's own work on top of this bare one, misses R008, noticed by the scale check.
+    - Building vector tiles instead would be a change to this plan.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
-  - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp; the file's own date would be the fallback.
+  - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp.
+    - The file's own date would be the fallback.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A007**: Cutting and exporting the largest rectangle takes about 5 seconds from an extract of about 500 MB. Source: [0002](../decisions/0002-osmium-tool-selects-and-assembles.md), run 2026-10-04.
-  - The cut reads the whole extract, so the time grows with the extract and not with the rectangle; a larger extract has not been timed.
-  - Risk: every build from an extract of several GB keeps a developer waiting, noticed by timing one; cutting a smaller extract once and building from that is the way out.
+  - The cut reads the whole extract, so the time grows with the extract and not with the rectangle.
+    - A larger extract has not been timed.
+  - Risk: every build from an extract of several GB keeps a developer waiting, noticed by timing one.
+    - Cutting a smaller extract once and building from that is the way out.
 - **A008**: OpenFreeMap serves its `positron` style and tiles without a key or a limit on views. Source: [its site](https://openfreemap.org/) and a request for the style, 2026-10-04.
   - Its [terms](https://openfreemap.org/tos/) say the service may be discontinued at any time.
-  - Risk: the base map disappears, noticed by features drawn on a blank page; another style URL replaces it.
+  - Risk: the base map disappears, noticed by features drawn on a blank page.
+    - Another style URL replaces it.
 
 ## Decisions
 
@@ -78,7 +88,8 @@ A mapper looking at the page sees which features have gone longest without one, 
 - [0003. The program is written in Rust](../decisions/0003-rust-for-the-program.md)
 - GeoJSON rather than vector tiles built with tippecanoe, because A004's measurement is within R008, and tiles would add tippecanoe and a server that answers range requests.
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
-  - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features, and a Protomaps archive needs a server that answers range requests (checked 2026-10-03).
+  - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features (checked 2026-10-03).
+  - A Protomaps archive needs a server that answers range requests (checked 2026-10-03).
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
   - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
   - Which keys stand for each of the scope's kinds of feature is settled while building.
