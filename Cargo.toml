@@ -1,0 +1,15 @@
+[package]
+name = "osm-patina"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+# A local tool, built from this repository and never released as a crate.
+publish = false
+
+[dependencies]
+
+# Off by default. `qa:rust:clippy` denies warnings, so what the lint reports
+# fails the check: a `pub` item in a private module, though not a `pub` field of
+# a `pub(crate)` struct, nor an item of the crate root.
+[lints.rust]
+unreachable_pub = "warn"
