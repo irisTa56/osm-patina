@@ -115,7 +115,8 @@ A mapper looking at the page sees which features have gone longest without one, 
 ## Dependencies
 
 - **osmium-tool 1.19**: selecting the rectangle and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), installed by `mise install` through the conda backend.
-- **Rust toolchain**: building and testing the program, pinned in one place that `mise install` reads.
+- **Rust toolchain**: building and testing the program, declared in `mise.toml` at its latest release, as the tools already there are.
+  - The maintainer chose that over a fixed version on 2026-10-13: a developer's machine keeps the release it installed until `mise upgrade`, CI installs the current one on each run, and CI's weekly run shows when the two have come apart.
 - **Rust crates** the program itself depends on, chosen while building, for these purposes only, with crates that only its tests use left to the building session:
   - parsing the command's arguments,
   - reading and writing JSON and the rules of R011,
@@ -176,4 +177,3 @@ A mapper looking at the page sees which features have gone longest without one, 
 ## Open questions
 
 - Whether the colour scale is fixed dates or follows the dates found in the area: decided while building, looking at the stand-in area.
-- Whether the Rust toolchain is pinned in `mise.toml` or in `rust-toolchain.toml`.
