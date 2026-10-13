@@ -94,7 +94,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 - [0001. A regional extract kept on disk is the data source](../decisions/0001-regional-extract-as-data-source.md)
 - [0002. osmium-tool selects the area and assembles geometry](../decisions/0002-osmium-tool-selects-and-assembles.md)
 - [0003. The program is written in Rust](../decisions/0003-rust-for-the-program.md)
-- The Rust toolchain at its latest release rather than at a fixed version, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
+- The Rust toolchain and osmium-tool at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
   - The maintainer chose it (said 2026-10-13).
 - GeoJSON rather than vector tiles built with tippecanoe, because A004's measurement is within R008, and tiles would add tippecanoe and a server that answers range requests.
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
@@ -116,7 +116,7 @@ A mapper looking at the page sees which features have gone longest without one, 
 
 ## Dependencies
 
-- **osmium-tool 1.19**: selecting the rectangle and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), installed by `mise install` through the conda backend.
+- **osmium-tool**: selecting the rectangle and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), declared in `mise.toml` at its latest release, which was 1.19.1 on 2026-10-13, and installed by `mise install` through the conda backend.
 - **Rust toolchain**: building and testing the program, declared in `mise.toml` at its latest release.
 - **Rust crates** the program itself depends on, chosen while building, for these purposes only, with crates that only its tests use left to the building session:
   - parsing the command's arguments,
