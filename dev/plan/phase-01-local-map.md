@@ -32,7 +32,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R008**: At the stand-in area, a 5 km square of about 108,000 features, on a developer's machine, the command and the window keep to these times:
   - Within 15 seconds of the command starting, from an extract of about 500 MB, the window shows every feature.
   - Once they show, the interval between frames while the map is panned and zoomed is within 20 ms at the 95th percentile.
-- **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)) and draws the map itself, with no browser and no JavaScript ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)), and its automated checks run in `mise run pre-commit` and in CI.
+- **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)) and draws the map itself, in no page or browser and with no JavaScript ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)), and its automated checks run in `mise run pre-commit` and in CI.
   - The tests that drive the window are meant to run in CI as well, and where that proves not to work, the maintainer accepts running them on a developer's machine alone (said 2026-10-11 of tests that drove a page, and carried over to the window on 2026-10-14).
 - **R010**: The features are drawn over a base map in muted colours, with its place and street names above them.
   - Each name is the place's own, in its own script, drawn with a font found on the machine.
@@ -184,7 +184,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011, A012.
   - The Rust checks and the end-to-end test pass there.
   - The tests of the window pass there as well, or on a developer's machine alone where running them in CI proves not to work.
+  - No tracked file is JavaScript or TypeScript.
   - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`, and for tests left to a developer's machine, a run of them there.
+    - `git ls-files '*.js' '*.mjs' '*.cjs' '*.ts'` prints nothing.
 
 ## Open questions
 

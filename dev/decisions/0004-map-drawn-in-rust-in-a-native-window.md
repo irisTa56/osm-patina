@@ -27,7 +27,7 @@ A trial below showed that it is possible, and asked then to choose between the t
 
 The program draws the map itself, in a native window built with eframe and egui, as qol-reweight does.
 walkers draws the base map, and draws the features as a layer of tiles the program builds from osmium-tool's export, under the base map's names.
-There is no page and no browser, and nothing the program runs is JavaScript.
+The map is drawn in no page and no browser, and nothing the program runs is JavaScript; a link it shows opens in the user's own browser.
 
 ## Rejected alternatives
 
@@ -43,5 +43,5 @@ There is no page and no browser, and nothing the program runs is JavaScript.
 - **Risks**:
   - walkers is not yet at 1.0, and between 0.60.0 and 0.61.0 it changed two things the trial's code used, so an update may take changes to the program, which its build would show.
   - Whatever is named in a non-Latin script gets no label until the program rewrites the style's expression for names or walkers evaluates `concat`, which the eye check of the base map would show.
-  - The window opens on the machine the command runs on, the one with osmium-tool and the extract.
-  - What walkers draws on the GPU is not in the shapes a test of the window reads, so the features' colours are checked in what the program hands walkers and in an image a test renders, and the names above them by eye.
+  - The map can be seen only where the command runs, on a machine with osmium-tool and the extract, so a mapper without them cannot open it, which a request to see the map from elsewhere would show.
+  - What walkers draws on the GPU is not in the shapes a test of the window reads, so a feature that is not drawn is caught only by the test that renders an image; where that test runs on a developer's machine alone, a change that stops the features being drawn passes CI, which the next run of it there would show.
