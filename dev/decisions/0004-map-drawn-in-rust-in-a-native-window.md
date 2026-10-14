@@ -1,0 +1,44 @@
+# 0004. The map is drawn in Rust, in a native window
+
+- Status: Proposed
+- Date: 2026-10-14
+
+## Context
+
+The phase was planned as a web page that draws the map with MapLibre GL JS, a library called from JavaScript ([phase 01 plan](../plan/phase-01-local-map.md), as it stood on 2026-10-13).
+The maintainer wants no JavaScript or TypeScript in the repository, in a state where it is plain that none is used rather than one where its absence has to be checked (said 2026-10-13).
+Of the ways to get there, they named drawing in Rust as closer to that than a JavaScript library whose JavaScript is kept out of the commits (said 2026-10-14).
+
+- [walkers](https://crates.io/crates/walkers), the map widget for egui that the maintainer's other tool, qol-reweight, already draws with, draws the base map's tiles, then each layer added to the map, then the names it gathered from all of them, and only then what a plugin draws (`src/map.rs` of 0.60.0, read 2026-10-13).
+  - A layer is anything that implements its public `Tiles` trait, and with its `mvt` feature a tile can be meshes with a colour on every vertex and lines with a width in screen pixels, which it hands to the GPU once and only moves afterwards (`src/tiles.rs`, `src/lib.rs`, and `src/egui_backend.rs` of 0.60.0, read 2026-10-13).
+- A trial drew the stand-in area's 108,074 features with walkers 0.61.0 and eframe 0.36.2 in a native window on an Apple M3, over OpenFreeMap's vector tiles, built in release, four runs on 2026-10-13 and 2026-10-14, three of them with its `positron` style.
+  - The features were a layer of tiles the program built from osmium-tool's export, 30 of them in 66 to 68 ms.
+  - While the map zoomed and moved by itself, frames came at the display's 60 a second, with the 95th percentile between frames at 17.3 to 17.9 ms.
+  - The base map's names were drawn above the features.
+  - Finding the feature under a point by trying every feature took 0.6 to 1.2 ms.
+- walkers 0.61.0 evaluates no `concat` (`src/expression.rs`, read 2026-10-14), which `positron` and walkers' own bundled `openfreemap_bright` use to name every place that has a name in a non-Latin script, so those places get no name.
+  - With that expression replaced by the place's own name and a font with Japanese glyphs added, the trial drew the names in Japanese, and frames kept to the same rate.
+- MapLibre GL JS can be called from Rust compiled to WebAssembly with no JavaScript in the commits (a trial with wasm-bindgen 0.2.129 and trunk 0.21.14 in Chromium on macOS, 2026-10-13): the library's classes were declared in Rust, and trunk wrote the script that loads the WebAssembly.
+  - The page then still runs MapLibre GL JS's JavaScript, which a build downloads, and the JavaScript that wasm-bindgen and trunk generate.
+- Of the other ways found to draw a map in Rust, none was run (read 2026-10-13): [`galileo`](https://crates.io/crates/galileo) 0.2.1 was last released on 2025-07-11, [`maplibre`](https://crates.io/crates/maplibre) 0.0.3 draws neither names nor GeoJSON, and no way to put [`maplibre_native`](https://crates.io/crates/maplibre_native) 0.10.0 in a window was found in its documents.
+
+## Decision
+
+The program draws the map itself, in a native window built with eframe and egui, as qol-reweight does.
+walkers draws the base map, and draws the features as a layer of tiles the program builds from osmium-tool's export, under the base map's names.
+There is no page and no browser, and nothing the program runs is JavaScript.
+
+## Rejected alternatives
+
+- **A page drawn by MapLibre GL JS, with no JavaScript in the commits**: it keeps what the plan had measured of MapLibre GL JS, but a JavaScript library is still at its heart and generated JavaScript beside it, so that none is used is not plain; it also adds the WebAssembly target, trunk, and a download of the library to the build.
+- **A page with JavaScript written by hand**: the fewest tools, but the maintainer chose not to write any.
+- **The features drawn by a walkers plugin**: the simplest way to draw on a walkers map, but a plugin draws above the base map's names, which R010 has the other way round.
+- **Another map renderer in Rust**: none of those found was run, and walkers is the one the maintainer's other tool already uses.
+
+## Consequences
+
+- **Dependencies added**: eframe with egui, and walkers with its `mvt` feature.
+- **Risks**:
+  - walkers is not yet at 1.0, and between 0.60.0 and 0.61.0 it changed two things the trial's code used, so an update may take changes to the program, which its build would show.
+  - Places named in a non-Latin script get no name until the program rewrites the style's expression for names or walkers evaluates `concat`, which the eye check of the base map would show.
+  - What walkers draws on the GPU is not in the shapes a test of the window reads, so the features' colours are checked in what the program hands walkers, and the names above them by eye.
