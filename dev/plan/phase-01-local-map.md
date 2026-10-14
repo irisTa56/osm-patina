@@ -133,7 +133,6 @@ A mapper looking at the window sees which features have gone longest without one
   - finding which feature lies under a point, for the selection of R004,
   - and finding a font on the machine for the names of R010.
 - **A software rasterizer on CI's runner**, for tests only: what the test that renders the window draws with there (A012), installed by the CI job, such as Mesa's Vulkan driver.
-  - Where it does not render walkers' drawing, R009 leaves that test to a developer's machine.
   - The maintainer chose to try it on CI first (said 2026-10-14).
 - **OpenFreeMap**: the base map's style and tiles, requested by the window while it is open.
 
@@ -184,9 +183,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011, A012.
   - The Rust checks and the end-to-end test pass there.
   - The tests of the window pass there as well, or on a developer's machine alone where running them in CI proves not to work.
-  - No tracked file is JavaScript or TypeScript.
+  - No tracked file is JavaScript, TypeScript, or HTML, on every commit after the phase closes as well.
   - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`, and for tests left to a developer's machine, a run of them there.
-    - `git ls-files '*.js' '*.mjs' '*.cjs' '*.ts'` prints nothing.
+    - A check among `mise run pre-commit`'s and CI's finds no tracked file named `*.js`, `*.mjs`, `*.cjs`, `*.jsx`, `*.ts`, `*.mts`, `*.cts`, `*.tsx`, `*.html`, or `*.htm`.
 
 ## Open questions
 

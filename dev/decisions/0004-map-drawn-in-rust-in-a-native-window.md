@@ -43,5 +43,4 @@ The map is drawn in no page and no browser, and nothing the program runs is Java
 - **Risks**:
   - walkers is not yet at 1.0, and between 0.60.0 and 0.61.0 it changed two things the trial's code used, so an update may take changes to the program, which its build would show.
   - Whatever is named in a non-Latin script gets no label until the program rewrites the style's expression for names or walkers evaluates `concat`, which the eye check of the base map would show.
-  - The map can be seen only where the command runs, on a machine with osmium-tool and the extract, so a mapper without them cannot open it, which a request to see the map from elsewhere would show.
   - What walkers draws on the GPU is not in the shapes a test of the window reads, so a feature that is not drawn is caught only by the test that renders an image; where that test runs on a developer's machine alone, a change that stops the features being drawn passes CI, which the next run of it there would show.
