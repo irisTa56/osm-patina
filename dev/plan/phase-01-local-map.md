@@ -67,7 +67,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
   - The window's own work in a frame had a median of 0.15 ms, and of 4.6 ms once the base map's names were drawn in Japanese.
   - Not measured: reading osmium-tool's export when the command starts, and A003's denser square.
-  - Risk: a slower machine, a denser area, or the program's own work on top of the trial's misses R008, noticed by the scale check.
+  - Risk: a slower machine, or the program's own work on top of the trial's, misses R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp.
@@ -105,7 +105,7 @@ A mapper looking at the window sees which features have gone longest without one
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
   - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features (checked 2026-10-03).
   - A Protomaps archive needs a server that answers range requests (checked 2026-10-03).
-- Names in each place's own script rather than in Latin script alone, because a mapper reads the map in the language of the place, and the fonts for it are on a developer's machine (A010).
+- Names in their own script rather than in Latin script alone, because a mapper in Japan reads names best in their local script, and a font for it is on the developer's macOS (A010).
   - The maintainer chose it (said 2026-10-14).
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
   - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
@@ -126,6 +126,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **Other Rust crates** the program itself depends on, chosen while building, for these purposes only, with crates that only its tests use left to the building session:
   - parsing the command's arguments,
   - reading osmium-tool's export and the rules of R011,
+  - finding which feature lies under a point, for the selection of R004,
   - and finding a font on the machine for the names of R010.
 - **OpenFreeMap**: the base map's style and tiles, requested by the window while it is open.
 
@@ -134,9 +135,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002.
   - Each such feature is there once, with its type, id, version, and timestamp.
   - A feature R002 says is not drawn is absent.
-  - Check: an end-to-end test runs the command on a hand-written extract and compares the result with what the extract was written to hold.
+  - Check: an end-to-end test takes the program from a hand-written extract through osmium-tool to the features it would hand walkers, without opening a window, and compares them with what the extract was written to hold.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
-  - Check: a test runs the command on the fixture with a second set of rules, one added and one removed, and compares the result.
+  - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
 - **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R003, R004, R005, R006, R010, A005, A011.
@@ -145,6 +146,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The window states the date of the data.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
+  - Given no font for Japanese, the window still opens, and says that some names cannot be drawn.
   - Check: automated tests on the fixture's map.
     - One compares the colour of every feature in what the program hands walkers with the colour the legend gives for that feature's date, which is the same for a point, a line, and an area of one date.
     - The others drive the window without showing it (A011), and work out each date, detail, and link from what the fixture was written to hold.
