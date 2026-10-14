@@ -31,7 +31,8 @@ There is no page and no browser, and nothing the program runs is JavaScript.
 
 ## Rejected alternatives
 
-- **A page drawn by MapLibre GL JS, with no JavaScript in the commits**: it keeps what the plan had measured of MapLibre GL JS, but a JavaScript library is still at its heart and generated JavaScript beside it, which falls short of a state where it is plain that none is used, and the maintainer, given the choice, took drawing in Rust; it also adds the WebAssembly target, trunk, and a download of the library to the build.
+- **A page drawn by MapLibre GL JS, with no JavaScript in the commits**: it keeps what the plan had measured of MapLibre GL JS, and is the route the maintainer had pictured, but offered both, with drawing in Rust recommended, they chose drawing in Rust; it would also add the WebAssembly target, trunk, and a download of the library to the build.
+  - The maintainer left whether third-party and generated JavaScript is acceptable to how it is taken in (said 2026-10-14).
 - **A page with JavaScript written by hand**: the fewest tools, but the maintainer chose not to write any.
 - **The features drawn by a walkers plugin**: the simplest way to draw on a walkers map, but a plugin draws above the base map's names, which R010 has the other way round.
 - **Another map renderer in Rust**: none of those found was run, and walkers is the one the maintainer's other tool already uses.
@@ -42,5 +43,5 @@ There is no page and no browser, and nothing the program runs is JavaScript.
 - **Risks**:
   - walkers is not yet at 1.0, and between 0.60.0 and 0.61.0 it changed two things the trial's code used, so an update may take changes to the program, which its build would show.
   - Whatever is named in a non-Latin script gets no label until the program rewrites the style's expression for names or walkers evaluates `concat`, which the eye check of the base map would show.
-  - A window opens only on a developer's machine, which is short of what the roadmap's Publishing phase asks for, and eframe and walkers reach a browser only through WebAssembly, whose page brings JavaScript that wasm-bindgen generates.
-  - What walkers draws on the GPU is not in the shapes a test of the window reads, so the features' colours are checked in what the program hands walkers and in an image a test renders on a machine with a GPU, and the names above them by eye.
+  - The window opens on the machine the command runs on, the one with osmium-tool and the extract.
+  - What walkers draws on the GPU is not in the shapes a test of the window reads, so the features' colours are checked in what the program hands walkers and in an image a test renders, and the names above them by eye.

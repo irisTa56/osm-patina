@@ -91,7 +91,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: something the phase must check cannot be reached that way, noticed by a check below that ends up done by hand.
   - Risk: the tests of the window cannot run on CI's runner, noticed by their failing in CI alone.
     - R009 then leaves them to a developer's machine.
-- **A012**: A test can render the window to an image, what walkers draws on the GPU included. Unverified: egui_kittest 0.36.2's `wgpu` feature has `Harness::render`, which runs egui's wgpu renderer over a frame, paint callbacks included (its source, read 2026-10-14), but it has not been run with walkers, and it needs a GPU, which CI's runner may not have.
+- **A012**: A test can render the window to an image, what walkers draws on the GPU included. Unverified: egui_kittest 0.36.2's `wgpu` feature has `Harness::render`, which runs egui's wgpu renderer over a frame, paint callbacks included (its source, read 2026-10-14), but it has not been run with walkers, and it needs a wgpu adapter, which a runner with no GPU has only through a software rasterizer such as lavapipe, which the crate prefers (its `src/wgpu.rs`, read 2026-10-14) and which has not been tried on CI's runner.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 
