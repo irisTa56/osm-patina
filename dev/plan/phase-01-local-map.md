@@ -91,7 +91,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: something the phase must check cannot be reached that way, noticed by a check below that ends up done by hand.
   - Risk: the tests of the window cannot run on CI's runner, noticed by their failing in CI alone.
     - R009 then leaves them to a developer's machine.
-- **A012**: A test can render the window to an image, what walkers draws on the GPU included. Unverified: egui_kittest 0.36.2's `wgpu` feature has `Harness::render`, which runs egui's wgpu renderer over a frame, paint callbacks included (its source, read 2026-10-14), but it has not been run with walkers, and it needs a wgpu adapter, which a runner with no GPU has only through a software rasterizer such as lavapipe, which the crate prefers (its `src/wgpu.rs`, read 2026-10-14) and which has not been tried on CI's runner.
+- **A012**: A test can render the window to an image, what walkers draws on the GPU included. Unverified: egui_kittest 0.36.2's `wgpu` feature has `Harness::render`, which runs egui's wgpu renderer over a frame, paint callbacks included (its source, read 2026-10-14), but it has not been run with walkers, and it needs a wgpu adapter, which a runner with no GPU has only through a software rasterizer such as lavapipe, which the crate prefers (its `src/wgpu.rs`, read 2026-10-14).
+  - The [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists no Mesa, Vulkan driver, or software rasterizer among its packages (image 20261004.327.1, read 2026-10-14), so CI has to install one.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 
@@ -131,6 +132,9 @@ A mapper looking at the window sees which features have gone longest without one
   - reading osmium-tool's export and the rules of R011,
   - finding which feature lies under a point, for the selection of R004,
   - and finding a font on the machine for the names of R010.
+- **A software rasterizer on CI's runner**, for tests only: what the test that renders the window draws with there (A012), installed by the CI job, such as Mesa's Vulkan driver.
+  - Where it does not render walkers' drawing, R009 leaves that test to a developer's machine.
+  - The maintainer chose to try it on CI first (said 2026-10-14).
 - **OpenFreeMap**: the base map's style and tiles, requested by the window while it is open.
 
 ## Done when
@@ -171,7 +175,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Check: on a developer's machine, with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.
-    - Time the command until every feature shows, and record the interval between frames while the map pans and zooms.
+    - Time the command until every feature shows, and record the interval between frames while the program itself pans and zooms the map without a pause, as A004's trial did, since egui draws no frame while nothing moves and a pause by hand would count as a long one.
     - Count the tagged objects that go into the build and the features that come out, and record what accounts for the difference.
 - **Opening a map leaves nothing in the repository that tells where a developer works** — verifies R007.
   - The working tree is clean after the stand-in area's window has been opened.
