@@ -183,9 +183,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011, A012.
   - The Rust checks and the end-to-end test pass there.
   - The tests of the window pass there as well, or on a developer's machine alone where running them in CI proves not to work.
-  - No tracked file is JavaScript, TypeScript, or HTML, on every commit after the phase closes as well.
+  - No tracked file is JavaScript or TypeScript, on every commit after the phase closes as well.
   - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`, and for tests left to a developer's machine, a run of them there.
-    - A check among `mise run pre-commit`'s and CI's finds no tracked file named `*.js`, `*.mjs`, `*.cjs`, `*.jsx`, `*.ts`, `*.mts`, `*.cts`, `*.tsx`, `*.html`, or `*.htm`.
+    - A check among `mise run pre-commit`'s and CI's finds no tracked file named `*.js`, `*.mjs`, `*.cjs`, `*.jsx`, `*.ts`, `*.mts`, `*.cts`, or `*.tsx`.
 
 ## Open questions
 
