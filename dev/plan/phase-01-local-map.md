@@ -91,6 +91,9 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: something the phase must check cannot be reached that way, noticed by a check below that ends up done by hand.
   - Risk: the tests of the window cannot run on CI's runner, noticed by their failing in CI alone.
     - R009 then leaves them to a developer's machine.
+- **A012**: A test can render the window to an image, what walkers draws on the GPU included. Unverified: egui_kittest 0.36.2's `wgpu` feature has `Harness::render`, which runs egui's wgpu renderer over a frame, paint callbacks included (its source, read 2026-10-14), but it has not been run with walkers, and it needs a GPU, which CI's runner may not have.
+  - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
+  - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 
 ## Decisions
 
@@ -140,7 +143,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command both ways and reads the message.
-- **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R003, R004, R005, R006, R010, A005, A011.
+- **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R003, R004, R005, R006, R010, A005, A011, A012.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - The window states the date of the data.
@@ -149,6 +152,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Given no font for Japanese, the window still opens, and says that some names cannot be drawn.
   - Check: automated tests on the fixture's map.
     - One compares the colour of every feature in what the program hands walkers with the colour the legend gives for that feature's date, which is the same for a point, a line, and an area of one date.
+    - One renders the window to an image while the base map's service does not answer (A012), and finds each feature drawn in that colour.
     - The others drive the window without showing it (A011), and work out each date, detail, and link from what the fixture was written to hold.
     - They wait on no host other than the machine they run on.
 - **To the eye, the stand-in area's window reads and answers over the base map** — verifies R003, R004, R006, R010, A008, A009, A010.
@@ -173,7 +177,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The working tree is clean after the stand-in area's window has been opened.
   - No tracked file holds a coordinate other than the fixture's and the stand-in area's.
   - Check: `git status --short` prints nothing after opening the stand-in area, and the tracked files are searched for coordinates.
-- **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011.
+- **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011, A012.
   - The Rust checks and the end-to-end test pass there.
   - The tests of the window pass there as well, or on a developer's machine alone where running them in CI proves not to work.
   - Check: the pull request's CI run, on a runner that installed osmium-tool through `mise install`, and for tests left to a developer's machine, a run of them there.

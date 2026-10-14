@@ -42,4 +42,4 @@ There is no page and no browser, and nothing the program runs is JavaScript.
   - walkers is not yet at 1.0, and between 0.60.0 and 0.61.0 it changed two things the trial's code used, so an update may take changes to the program, which its build would show.
   - Whatever is named in a non-Latin script gets no label until the program rewrites the style's expression for names or walkers evaluates `concat`, which the eye check of the base map would show.
   - A window opens only on a developer's machine, which is short of what the roadmap's Publishing phase asks for, and eframe and walkers reach a browser only through WebAssembly, whose page brings JavaScript that wasm-bindgen generates.
-  - What walkers draws on the GPU is not in the shapes a test of the window reads, so the features' colours are checked in what the program hands walkers, and the names above them by eye.
+  - What walkers draws on the GPU is not in the shapes a test of the window reads, so the features' colours are checked in what the program hands walkers and in an image a test renders on a machine with a GPU, and the names above them by eye.
