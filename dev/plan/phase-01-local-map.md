@@ -62,7 +62,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the stand-in area, which R008 is stated for. Source: counts of the four squares.
   - The stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
   - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
-  - Risk: a still denser area exceeds what A004 was measured on, noticed by its window taking longer than R008's times.
+  - Risk: an area denser than the stand-in, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since the maintainer chose not to hold such an area to R008 (said 2026-10-14); noticed by the map lagging when one is opened.
 - **A004**: walkers draws the stand-in area's features within R008's frame interval. Source: the trial in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md), 108,074 features over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs on 2026-10-13 and 2026-10-14.
   - The 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
   - The window's own work in a frame had a median of 0.15 ms, and of 4.6 ms once the base map's names were drawn in Japanese.
@@ -162,7 +162,7 @@ A mapper looking at the window sees which features have gone longest without one
   - A selected point, line, and area each show their details there as well, and the link of each opens that object on openstreetmap.org.
   - Check: open the stand-in area's window and look.
     - Select one feature of each kind and follow its link.
-- **The stand-in area opens and answers within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R002, R005, R008, A001, A004, A005, A007.
+- **The stand-in area opens and answers within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R001, R002, R005, R008, A001, A004, A005, A007.
   - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
   - The window shows every feature within R008's time of the command starting.
   - While the map is panned and zoomed, the interval between frames keeps within R008's.
