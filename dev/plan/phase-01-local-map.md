@@ -118,7 +118,7 @@ A mapper looking at the window sees which features have gone longest without one
 - [0004. The map is drawn in Rust, in a native window](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)
 - [0005. The features reach the window as vector tiles that tippecanoe builds](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)
 - The Rust toolchain, osmium-tool, and tippecanoe at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
-  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13), and tippecanoe follows on the same grounds.
+  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13), and for tippecanoe (said 2026-10-15).
 - One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
