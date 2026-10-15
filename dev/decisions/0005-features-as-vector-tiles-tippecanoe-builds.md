@@ -20,6 +20,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
   - With its defaults and no simplification at the deepest zoom (`-pS`), 6 features were missing at zoom 14: four small areas and two lines of two points.
   - With small areas kept as they are (`-pt`) and coordinates 16 times finer within a tile (`-d16`), zoom 14 held all 108,074, built in 2.8 seconds into 2.9 MB.
   - With `-pt` and tippecanoe's default limit of 500 KB a tile, the zoom 13 tile over Tokyo Station could not be made small enough.
+  - Built with those options, 40,000 small areas and short lines written into one zoom 14 tile came out with coarser coordinates and 14,688 lines missing, and tippecanoe ended without an error; with its limits on a tile's size and number of features lifted, all 40,000 were kept in a tile of 1.2 MB (2026-10-15 and 16, counted by `tippecanoe-decode --stats`).
 - The program read that zoom 14 archive with the [`pmtiles`](https://docs.rs/pmtiles/0.24.0) crate 0.24.0 and [`mvt-reader`](https://docs.rs/mvt-reader/2.5.0) 2.5.0, which walkers 0.61.0 reads PMTiles and vector tiles with, and drew it as 0004's trial did, closer zooms as pieces of zoom 14 tiles, in two runs.
   - Its first frame came 127 to 377 ms after it started, and the 30 tiles it needed were read in 115 ms.
   - While the map zoomed and moved by itself, the 95th percentile between frames was 17.7 ms.
@@ -28,7 +29,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 ## Decision
 
 The rectangle is cut and exported with osmium-tool as 0002 says, the features the rules admit are kept, and tippecanoe builds them into a PMTiles archive, which the window reads.
-The archive holds every feature at zoom 14, none left out, with no simplification at that zoom, small areas kept as they are, and coordinates finer than tippecanoe's default.
+The archive holds every feature at zoom 14, none left out, with no simplification at that zoom, small areas kept as they are, coordinates finer than tippecanoe's default, and no limit on a tile's size or number of features, since past a limit tippecanoe coarsens a tile and drops features without an error.
 The map draws the features at zoom 14 and closer, and further out it draws none and says that zooming in shows them.
 
 ## Rejected alternatives
@@ -45,6 +46,6 @@ The map draws the features at zoom 14 and closer, and further out it draws none 
 - **Dependencies added**: tippecanoe, installed by mise's conda backend and run as a separate program, and the `pmtiles` and `mvt-reader` crates.
 - **Risks**:
   - conda-forge's build of tippecanoe on Linux has not been installed, which CI would show by failing at install.
-  - In an area denser than the stand-in, a zoom 14 tile can go over tippecanoe's default limit, and with small areas kept as they are the build then fails rather than leaving features out, which shows only when such an area is built; lifting the limit is the way out.
+  - In an area denser than the stand-in, a zoom 14 tile can be larger than any the window has drawn, which the map lagging there would show.
   - Selecting among overlapping areas judges each by the part a tile holds unless the archive carries each feature's whole size, which a test that selects within overlapping areas would show.
   - An archive is as old as the extract it was built from, which the window shows by the data's date.

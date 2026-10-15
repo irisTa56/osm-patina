@@ -12,6 +12,7 @@ A mapper looking at the window sees which features have gone longest without one
 
 - **R001**: Given a regional extract on disk, a centre point, and a width and height, one command builds the map of that rectangle as an archive of vector tiles, and given that archive, another command opens a window over the rectangle at zoom 14 ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - A rectangle whose long side exceeds 5 km is refused, with a message that says so.
+  - The window opens large enough to show the whole rectangle at zoom 14, about 650 points a side for a 5 km square at Tokyo's latitude, since further out no feature is drawn.
 - **R002**: The map draws the features in the rectangle that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, at zoom 14 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - Further out than zoom 14, it draws no feature, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
@@ -76,7 +77,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp.
-    - The file's own date would be the fallback.
+    - The extract file's own date, carried into the archive as the header's would be, is the fallback, not the archive's, which is when it was built.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A007**: Cutting and exporting the largest rectangle takes about 5 seconds from an extract of about 500 MB. Source: [0002](../decisions/0002-osmium-tool-selects-and-assembles.md), run 2026-10-04.
@@ -101,7 +102,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 - **A013**: tippecanoe builds the stand-in area's features into an archive that holds every one of them at zoom 14, within about 3 seconds. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), tippecanoe 2.79.0 with `-pS -pt -d16` on an Apple M3, 2026-10-15: 2.8 seconds and 2.9 MB for zoom 14, counted with `tippecanoe-decode`.
-  - Risk: in a denser area a zoom 14 tile goes over tippecanoe's default limit of 500 KB, and the build fails, as the zoom 13 tile over Tokyo Station did, noticed only when such an area is built; lifting the limit is the way out.
+  - Past its limits on a tile's size and number of features, tippecanoe coarsens the tile and drops features without an error, so the archive is built with those limits lifted ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+  - Risk: in a denser area a zoom 14 tile is larger than any the window has drawn, noticed by the map lagging there.
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
@@ -165,7 +167,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A rectangle with a long side over 5 km, or a command without a centre point, is refused** — verifies R001, R007.
   - Check: a test runs the command that builds the archive both ways and reads the message.
 - **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R001, R002, R003, R004, R005, R006, R010, A005, A011, A012, A015.
-  - The window opens over the rectangle at zoom 14.
+  - The window opens over the rectangle at zoom 14, with the whole rectangle in view.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
