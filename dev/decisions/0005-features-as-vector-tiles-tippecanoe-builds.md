@@ -28,7 +28,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 ## Decision
 
 The rectangle is cut and exported with osmium-tool as 0002 says, the features the rules admit are kept, and tippecanoe builds them into a PMTiles archive, which the window reads.
-The archive holds every feature whole at zoom 14, with no simplification at that zoom, small areas kept as they are, and coordinates finer than tippecanoe's default.
+The archive holds every feature at zoom 14, none left out, with no simplification at that zoom, small areas kept as they are, and coordinates finer than tippecanoe's default.
 The map draws the features at zoom 14 and closer, and further out it draws none and says that zooming in shows them.
 
 ## Rejected alternatives
