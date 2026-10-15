@@ -25,7 +25,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
-  - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
+  - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
   - The [Attribution Guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines) allow a credit to collapse on interaction (checked 2026-10-03), but one that stays needs no reading of those conditions.
@@ -68,7 +68,8 @@ A mapper looking at the window sees which features have gone longest without one
   - The stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
   - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: an area denser than the stand-in, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since the maintainer chose not to hold such an area to R008 (said 2026-10-14); noticed by the map lagging when one is opened.
-- **A004**: walkers draws the stand-in area's features within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 108,074 features over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from the zoom 14 archive 0005 decides on 2026-10-15.
+- **A004**: walkers draws the stand-in area's features within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 108,074 features over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from a zoom 14 archive on 2026-10-15.
+  - That archive was built with tippecanoe's default limits, under which two tiles over Tokyo Station had coarser coordinates; the archive 0005 decides, with the limits lifted, has those two tiles at 548 and 599 KB rather than 496 and 491 KB, and the window has not been run over it.
   - The 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
   - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
   - From the archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
@@ -101,17 +102,18 @@ A mapper looking at the window sees which features have gone longest without one
   - The [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists no Mesa, Vulkan driver, or software rasterizer among its packages (image 20261004.327.1, read 2026-10-14), so CI has to install one.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
-- **A013**: tippecanoe builds the stand-in area's features into an archive that holds every one of them at zoom 14, within about 3 seconds. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), tippecanoe 2.79.0 with `-pS -pt -d16` on an Apple M3, 2026-10-15: 2.8 seconds and 2.9 MB for zoom 14, counted with `tippecanoe-decode`.
+- **A013**: tippecanoe builds the stand-in area's features into an archive that holds every one of them at zoom 14, within about 3 seconds. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), tippecanoe 2.79.0 on an Apple M3, with the options 0005 decides, 2026-10-16: 2.2 seconds and 3.1 MB for zoom 14, every tile at the finer coordinates, counted with `tippecanoe-decode`.
   - Past its limits on a tile's size and number of features, tippecanoe coarsens the tile and drops features without an error, so the archive is built with those limits lifted ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - Risk: in a denser area a zoom 14 tile is larger than any the window has drawn, noticed by the map lagging there.
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
   - A tile holds each area cut at its edge, which keeps an area within another within it, so the smaller of the two is still the smaller.
+    - Two areas that overlap without one lying within the other can rank the other way once cut, so the archive carries each area's whole size for R004's rule.
   - Risk: selecting in a tile denser than the stand-in's takes long enough to notice, noticed when selecting there.
-- **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3, at most about 6 seconds to cut and export (A007) and 2.8 seconds for the tiles (A013).
+- **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3, at most about 6 seconds to cut and export (A007) and 2.2 seconds for the tiles (A013).
   - Not measured: keeping the features the rules admit, writing what tippecanoe reads, and the whole command in one run.
-  - Risk: those parts take more than the 3 seconds or so left, noticed by the scale check.
+  - Risk: those parts take more than the 4 seconds or so left, noticed by the scale check.
 
 ## Decisions
 
@@ -171,6 +173,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
+  - Selecting where two areas overlap, neither within the other, at a point where the tile holds less of the larger one, selects the one smaller as a whole.
   - Selecting where a point or a line lies over an area selects the point or the line.
   - Further out than zoom 14, no feature is drawn, and the window says that zooming in shows them.
   - The window states the date of the data.

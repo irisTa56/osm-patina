@@ -18,10 +18,11 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
   - [`elivagar`](https://github.com/folknor/elivagar) builds a base map's layers from PBF in a schema of its own.
 - A trial built the stand-in area's 108,074 features, 37 MB of GeoJSON, into archives with tippecanoe 2.79.0, which mise's conda backend installed on macOS arm64, on an Apple M3 (2026-10-15).
   - With its defaults and no simplification at the deepest zoom (`-pS`), 6 features were missing at zoom 14: four small areas and two lines of two points.
-  - With small areas kept as they are (`-pt`) and coordinates 16 times finer within a tile (`-d16`), zoom 14 held all 108,074, built in 2.8 seconds into 2.9 MB.
+  - With small areas kept as they are (`-pt`) and coordinates 16 times finer within a tile (`-d16`), zoom 14 held all 108,074, built in 2.8 seconds into 2.9 MB, but two tiles over Tokyo Station had coarser coordinates, and each lacked a line that a tile beside it held.
+  - With tippecanoe's limits on a tile's size and number of features lifted as well, every tile kept the finer coordinates, the largest at 599 KB, built in 2.2 seconds into 3.1 MB (2026-10-16).
   - With `-pt` and tippecanoe's default limit of 500 KB a tile, the zoom 13 tile over Tokyo Station could not be made small enough.
   - Built with those options, 40,000 small areas and short lines written into one zoom 14 tile came out with coarser coordinates and 14,688 lines missing, and tippecanoe ended without an error; with its limits on a tile's size and number of features lifted, all 40,000 were kept in a tile of 1.2 MB (2026-10-15 and 16, counted by `tippecanoe-decode --stats`).
-- The program read that zoom 14 archive with the [`pmtiles`](https://docs.rs/pmtiles/0.24.0) crate 0.24.0 and [`mvt-reader`](https://docs.rs/mvt-reader/2.5.0) 2.5.0, which walkers 0.61.0 reads PMTiles and vector tiles with, and drew it as 0004's trial did, closer zooms as pieces of zoom 14 tiles, in two runs.
+- The program read the zoom 14 archive built with the default limits with the [`pmtiles`](https://docs.rs/pmtiles/0.24.0) crate 0.24.0 and [`mvt-reader`](https://docs.rs/mvt-reader/2.5.0) 2.5.0, which walkers 0.61.0 reads PMTiles and vector tiles with, and drew it as 0004's trial did, closer zooms as pieces of zoom 14 tiles, in two runs.
   - Its first frame came 127 to 377 ms after it started, and the 30 tiles it needed were read in 115 ms.
   - While the map zoomed and moved by itself, the 95th percentile between frames was 17.7 ms.
   - Picking at one point took 0.36 to 0.44 ms, and found another way than 0004's trial did at the same point; the trial judged the smallest area on each area as the tile holds it, cut at the tile's edge, which may be why, and which pick is right was not looked at.
@@ -30,6 +31,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 
 The rectangle is cut and exported with osmium-tool as 0002 says, the features the rules admit are kept, and tippecanoe builds them into a PMTiles archive, which the window reads.
 The archive holds every feature at zoom 14, none left out, with no simplification at that zoom, small areas kept as they are, coordinates finer than tippecanoe's default, and no limit on a tile's size or number of features, since past a limit tippecanoe coarsens a tile and drops features without an error.
+Each area carries its whole size, since a tile holds it cut at the tile's edge and the plan's R004 selects the smallest of several areas as a whole.
 The map draws the features at zoom 14 and closer, and further out it draws none and says that zooming in shows them.
 
 ## Rejected alternatives
@@ -38,7 +40,7 @@ The map draws the features at zoom 14 and closer, and further out it draws none 
   - How long reading the export whole takes was not measured.
 - **Building the tiles in Rust**: it would keep the tools to Rust, but cutting at a tile's edge and encoding vector tiles would be the program's own work, which tippecanoe already does, and no Rust tool found takes the features as they are.
 - **Features at every zoom, some left out further out**: the map would show features however far out it is, but not every feature; offered both, with zoom 14 and closer recommended since the whole rectangle shows at that zoom with every feature, the maintainer chose zoom 14 and closer (said 2026-10-15).
-- **Tiles to zoom 16, with tippecanoe thinning zooms 14 and 15 as it does by default**: each tile stays small however dense the area, but zoom 14 held 74,381 of the stand-in area's 108,074 features, so every feature would show only at zoom 16, where a window of 1,280 points spans about 2.5 km (built in 3.0 seconds into 7.0 MB, 2026-10-16); the maintainer chose zoom 14 alone with the limits lifted (said 2026-10-16).
+- **Tiles to zoom 16, with tippecanoe thinning zooms 14 and 15 as it does by default**: each tile stays small however dense the area, but zoom 14 held 74,381 of the stand-in area's 108,074 features and zoom 15 84,040, so every feature would show only at zoom 16, where a window of 1,280 points spans about 2.5 km (built in 3.0 seconds into 7.0 MB, 2026-10-16); the maintainer chose zoom 14 alone with the limits lifted (said 2026-10-16).
 - **Every feature at zooms further out than 14**: tiles over Tokyo Station go over tippecanoe's default limit at zoom 13, and lifting the limit leaves tiles whose drawing was not tried, since the window trials drew zoom 14 and closer alone, while a 5 km rectangle fits a window of 1,280 pixels at zoom 14, which spans about 10 km at Tokyo's latitude.
 - **One archive for an area wider than the rectangle**: it would spare every later rectangle in it the cut, but how long it takes and how large it is are not measured.
 
