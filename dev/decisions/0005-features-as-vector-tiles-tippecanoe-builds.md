@@ -33,7 +33,8 @@ The map draws the features at zoom 14 and closer, and further out it draws none 
 
 ## Rejected alternatives
 
-- **The features handed from osmium-tool's export to the window, as 0004's trial did**: it needs no tool beyond osmium-tool, but every opening of the map cuts the extract again.
+- **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool and also spares the cut on a second opening, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view, 30 of them over the trial's whole tour; the maintainer chose the tiles (said 2026-10-15).
+  - How long reading the export whole takes was not measured.
 - **Building the tiles in Rust**: it would keep the tools to Rust, but cutting at a tile's edge and encoding vector tiles would be the program's own work, which tippecanoe already does, and no Rust tool found takes the features as they are.
 - **Features at every zoom, some left out further out**: the map would show features however far out it is, but not every feature; offered both, with zoom 14 and closer recommended since the whole rectangle shows at that zoom with every feature, the maintainer chose zoom 14 and closer (said 2026-10-15).
 - **Every feature at zooms further out than 14**: tiles over Tokyo Station go over tippecanoe's default limit at zoom 13, and lifting the limit leaves tiles whose drawing was not tried, while a 5 km rectangle fits a window of 1,280 pixels at zoom 14, which spans about 10 km at Tokyo's latitude.

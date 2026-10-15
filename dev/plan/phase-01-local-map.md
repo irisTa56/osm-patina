@@ -123,7 +123,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
   - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features (checked 2026-10-03).
-  - A Protomaps archive needs a server that answers range requests (checked 2026-10-03).
+  - A Protomaps archive is a file the developer downloads, cut with `pmtiles extract` from a planet build of about 120 GB, and keeps up to date, where OpenFreeMap's tiles are requested as the window needs them ([its downloads page](https://docs.protomaps.com/basemaps/downloads), read 2026-10-15).
 - Names in their own script rather than in Latin script alone, because a mapper in Japan reads names best in their local script, and a font for it is on the developer's macOS (A010).
   - The maintainer chose it (said 2026-10-14).
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
