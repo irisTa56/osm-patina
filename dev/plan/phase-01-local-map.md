@@ -107,8 +107,8 @@ A mapper looking at the window sees which features have gone longest without one
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
-  - A tile holds each area cut at its edge, so the smallest of several areas under a point is judged on the cut ones unless the archive carries each feature's whole size.
-  - Risk: the larger of two overlapping features is selected, noticed by the test that selects within overlapping areas.
+  - A tile holds each area cut at its edge, which keeps an area within another within it, so the smaller of the two is still the smaller.
+  - Risk: selecting in a tile denser than the stand-in's takes long enough to notice, noticed when selecting there.
 - **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3, at most about 6 seconds to cut and export (A007) and 2.8 seconds for the tiles (A013).
   - Not measured: keeping the features the rules admit, writing what tippecanoe reads, and the whole command in one run.
   - Risk: those parts take more than the 3 seconds or so left, noticed by the scale check.
@@ -171,6 +171,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
+  - Selecting where a point or a line lies over an area selects the point or the line.
   - Further out than zoom 14, no feature is drawn, and the window says that zooming in shows them.
   - The window states the date of the data.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.

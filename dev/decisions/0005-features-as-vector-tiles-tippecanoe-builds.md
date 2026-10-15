@@ -47,5 +47,4 @@ The map draws the features at zoom 14 and closer, and further out it draws none 
 - **Risks**:
   - conda-forge's build of tippecanoe on Linux has not been installed, which CI would show by failing at install.
   - In an area denser than the stand-in, a zoom 14 tile can be larger than any the window has drawn, which the map lagging there would show.
-  - Selecting among overlapping areas judges each by the part a tile holds unless the archive carries each feature's whole size, which a test that selects within overlapping areas would show.
   - An archive is as old as the extract it was built from, which the window shows by the data's date.
