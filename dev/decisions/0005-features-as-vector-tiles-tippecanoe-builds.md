@@ -33,7 +33,7 @@ The map draws the features at zoom 14 and closer, and further out it draws none 
 
 ## Rejected alternatives
 
-- **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool and also spares the cut on a second opening, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view, 30 of them over the trial's whole tour; the maintainer chose the tiles (said 2026-10-15).
+- **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool and also spares the cut on a second opening, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view, 30 of them over the trial's whole tour; offered the tiles and the layer built from the export, the maintainer chose the tiles (said 2026-10-15), and a kept export was not among what they were offered.
   - How long reading the export whole takes was not measured.
 - **Building the tiles in Rust**: it would keep the tools to Rust, but cutting at a tile's edge and encoding vector tiles would be the program's own work, which tippecanoe already does, and no Rust tool found takes the features as they are.
 - **Features at every zoom, some left out further out**: the map would show features however far out it is, but not every feature; offered both, with zoom 14 and closer recommended since the whole rectangle shows at that zoom with every feature, the maintainer chose zoom 14 and closer (said 2026-10-15).
