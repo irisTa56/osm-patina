@@ -100,7 +100,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 - **A013**: tippecanoe builds the stand-in area's features into an archive that holds every one of them at zoom 14, within about 3 seconds. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), tippecanoe 2.79.0 with `-pS -pt -d16` on an Apple M3, 2026-10-15: 2.8 seconds and 2.9 MB for zoom 14, counted with `tippecanoe-decode`.
-  - Risk: in a denser area it leaves a feature out, noticed by the count of features in the scale check.
+  - Risk: in a denser area a zoom 14 tile goes over tippecanoe's default limit of 500 KB, and the build fails, as the zoom 13 tile over Tokyo Station did, noticed only when such an area is built; lifting the limit is the way out.
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
