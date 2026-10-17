@@ -25,7 +25,6 @@ The rule is about what is committed or published, and what a developer's machine
 Where a fixture, a screenshot, or an example needs a real area, use one picked for that purpose, unrelated to where any developer works.
 A place a developer names in conversation is not thereby cleared for a commit, so propose a well-known landmark in its place.
 
-Research notes may hold such details, which is why they are kept in the private workspace the `dev-docs` skill describes, outside this repository's working tree.
 Before every push, check that no commit it would publish carries anything of this kind, in its tree or its message, and rewrite those commits first if one does.
 
 ## Commands
