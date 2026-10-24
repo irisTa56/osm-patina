@@ -12,10 +12,14 @@ A mapper looking at the window sees which features have gone longest without one
 
 - **R001**: Given a regional extract on disk and one or more municipalities, each by name or by the id of its boundary relation in OSM, one command builds the map of their area as an archive of vector tiles, and given that archive, another command opens a window showing its whole area ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - A command given no municipality, or one the extract does not hold, is refused, with a message that says so.
+  - A name that matches several boundaries in the extract, such as a ward name several cities share, is refused, with the ids of the boundaries it matches.
+  - Municipalities whose boundaries overlap, such as a city given with one of its own wards, are refused, with a message that says which.
   - The area is the union of the municipalities' boundaries, whether or not they touch.
+  - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality builds the archive again over all of them.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - Further out than zoom 16, the features are thinned as tippecanoe does by default, so one can be missing there until the map is zoomed in.
+  - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
     - A relation of any other type is not a feature.
   - A feature is in the area when one of its nodes is, and it is then drawn whole, past the area's edge.
@@ -114,7 +118,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3 for a box around Tokyo's mainland, 7.5 seconds to cut, 45 seconds to export, and 612 seconds for the tiles (A007, A013), with no scope rules applied, which would leave fewer features.
   - Not measured: taking the municipalities' boundaries out of the extract, keeping the features the rules admit, writing what tippecanoe reads, and the whole command in one run.
   - Risk: those parts take more than the 4 minutes or so left, noticed by the scale check.
-- **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and municipalities do not; not run.
+- **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and distinct municipalities do not, R001 refusing those that do; not run.
   - Risk: a municipality whose boundary reaches past the extract's edge comes out incomplete, noticed by the command refusing it or by features missing near that edge.
 
 ## Decisions
@@ -170,11 +174,12 @@ A mapper looking at the window sees which features have gone longest without one
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and two of its municipalities that do not touch, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
-- **A command with no municipality, or one the extract does not hold, is refused** — verifies R001, R007.
-  - Check: a test runs the command that builds the archive both ways and reads the message.
+- **A command with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
+  - Check: a test runs the command that builds the archive each of those ways on the hand-written extract and reads the message.
 - **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R001, R002, R003, R004, R005, R006, R010, A005, A011, A012, A015.
   - The window opens showing the archive's whole area.
   - At zoom 16 and closer, every feature is drawn.
+  - Further out than zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
@@ -210,8 +215,8 @@ A mapper looking at the window sees which features have gone longest without one
     - Count the tagged objects that go into the build and the features the archive's zoom 16 tiles hold, and record what accounts for the difference.
 - **Building and opening a map leaves nothing in the repository that tells where a developer works** — verifies R007.
   - The working tree is clean after the stand-in area's archive has been built and opened.
-  - No tracked file holds a coordinate other than the fixture's and the stand-in area's, or names a municipality other than the stand-in's.
-  - Check: `git status --short` prints nothing after building and opening the stand-in area, and the tracked files are searched for coordinates and municipalities' names.
+  - No tracked file holds a coordinate other than the fixture's and the stand-in area's, or names a real municipality, the stand-in's included, whose list is given from outside the tracked files as any other area's is.
+  - Check: `git status --short` prints nothing after building and opening the stand-in area, and the tracked files are searched for coordinates and for the names and boundary ids of the municipalities built.
 - **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011, A012, A014.
   - The Rust checks and the end-to-end test pass there.
   - The tests of the window pass there as well, or on a developer's machine alone where running them in CI proves not to work.
