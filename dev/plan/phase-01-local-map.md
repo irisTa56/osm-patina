@@ -18,7 +18,9 @@ A mapper looking at the window sees which features have gone longest without one
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality builds the archive again over all of them.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - Further out than zoom 16, tippecanoe thins the features, the densest first where a tile goes over its limit ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), so one can be missing there until the map is zoomed in.
+  - Further out than zoom 16, tippecanoe thins the features ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), so one can be missing there until the map is zoomed in.
+    - Points are dropped everywhere, keeping 1 in 2.5 for each zoom out, as tippecanoe does by default.
+    - Where a zoom's tiles grow too large, features lying closest together are dropped across that zoom, so dense places thin first.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
@@ -113,14 +115,15 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: in a denser area, or one with finer features, zoom 16 lacks some, noticed by the build command's report of them (R002).
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
-- **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.59 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
+- **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
   - A tile holds each area cut at its edge, which keeps an area within another within it, so the smaller of the two is still the smaller.
     - Two areas that overlap without one lying within the other can rank the other way once cut, so the archive carries each area's whole size for R004's rule.
-  - Risk: selecting in a tile denser than the stand-in's takes long enough to notice, noticed when selecting there.
+  - Risk: selecting in a tile denser than those around Tokyo Station takes long enough to notice, noticed when selecting there.
 - **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3 for a box around Tokyo's mainland, 7.5 seconds to cut, 45 seconds to export, and 612 seconds for the tiles (A007, A013), with no scope rules applied, which would leave fewer features.
-  - Not measured: taking the municipalities' boundaries out of the extract, keeping the features the rules admit, writing what tippecanoe reads, and the whole command in one run.
+  - Not measured: taking the municipalities' boundaries out of the extract, keeping the features the rules admit, writing what tippecanoe reads, reading zoom 16 back to compare it with what was written (R002), and the whole command in one run.
   - Risk: those parts take more than the 4 minutes or so left, noticed by the scale check.
-- **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and distinct municipalities do not, R001 refusing those that do; not run.
+- **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and distinct municipalities do not, R001 refusing those that do; not run, and municipalities that share an edge were not tried.
+  - Risk: features on an edge two municipalities share are lost or doubled, noticed by the end-to-end test.
   - Risk: a municipality whose boundary reaches past the extract's edge comes out incomplete, noticed by the command refusing it or by features missing near that edge.
 
 ## Decisions
@@ -174,7 +177,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
   - A feature written but missing from zoom 16 is reported by the command that builds the archive.
-  - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and two of its municipalities that do not touch, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
+  - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
     - Another run, in which zoom 16 lacks a feature the command wrote, such as a line too short for zoom 16 to resolve, reads the report.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
