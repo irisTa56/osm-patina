@@ -80,7 +80,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: a slower machine, or the program's own work on top of the trial's, misses R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
-  - Risk: another extract lacks it, and the window can state only the file's date as a bound, at or after the data's since it is when the file was written to the disk (R005), noticed by `osmium fileinfo` printing no replication timestamp.
+  - Risk: another extract lacks it, and the window can state only the file's date as a bound, since a file is dated no earlier than the data it holds (R005), noticed by `osmium fileinfo` printing no replication timestamp.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A007**: Cutting and exporting the largest rectangle takes about 5 seconds from an extract of about 500 MB. Source: [0002](../decisions/0002-osmium-tool-selects-and-assembles.md), run 2026-10-04.
@@ -179,7 +179,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Selecting where a point or a line lies over an area selects the point or the line.
   - Further out than zoom 14, no feature is drawn, and the window says that zooming in shows them.
   - The window states the date of the data.
-  - Built from an extract whose header gives no date, the window states the file's date in the words that mark it as one the data is no newer than.
+  - Built from an extract whose header gives no date, and whose file is dated days before the build, the window states the extract file's date, not the build's, in the words that mark it as one the data is no newer than.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
   - Given no font for Japanese, the window still opens, and says that some names cannot be drawn.
