@@ -27,6 +27,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
+  - Where the extract's header gives no date, the window states the extract file's own date as one the data is no newer than, in words that tell it apart from a date the header gives; the maintainer chose it (said 2026-10-24).
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
   - The [Attribution Guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines) allow a credit to collapse on interaction (checked 2026-10-03), but one that stays needs no reading of those conditions.
 - **R007**: Nothing the phase commits reveals where a developer works, as [CLAUDE.md](../../CLAUDE.md#keeping-a-developers-location-private) requires.
@@ -74,14 +75,12 @@ A mapper looking at the window sees which features have gone longest without one
   - From the default-limit archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
   - The default limits had coarsened two tiles over Tokyo Station, which the decided archive holds at 548 and 599 KB rather than 496 and 491 KB.
     - From it, the first frame came 145 to 448 ms after the program started, and reading and building the tiles took what they took before.
-    - Its frame interval was not measured on an idle machine: other work on the machine that day slowed the default-limit archive too, to 46.9 ms at the 95th percentile.
+    - Its frame interval was 31.3 to 31.8 ms at the 95th percentile, over R008's, but not on an idle machine: other work on the machine that day slowed the default-limit archive more, to 46.9 ms, and the two archives drew within 0.1% of the same vertices.
   - Not measured: A003's denser square.
   - Risk: a slower machine, or the program's own work on top of the trial's, misses R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
-  - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp.
-    - The fallback is the extract file's own date, carried into the archive, not the archive's, which is when it was built.
-    - The file's date is when it was written to the disk, at or after the data's, so the window states it as the file's date, one the data is no newer than, in words that tell it apart from a date the header gives.
+  - Risk: another extract lacks it, and the window can state only the file's date as a bound, at or after the data's since it is when the file was written to the disk (R005), noticed by `osmium fileinfo` printing no replication timestamp.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A007**: Cutting and exporting the largest rectangle takes about 5 seconds from an extract of about 500 MB. Source: [0002](../decisions/0002-osmium-tool-selects-and-assembles.md), run 2026-10-04.
@@ -180,6 +179,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Selecting where a point or a line lies over an area selects the point or the line.
   - Further out than zoom 14, no feature is drawn, and the window says that zooming in shows them.
   - The window states the date of the data.
+  - Built from an extract whose header gives no date, the window states the file's date in the words that mark it as one the data is no newer than.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
   - Given no font for Japanese, the window still opens, and says that some names cannot be drawn.

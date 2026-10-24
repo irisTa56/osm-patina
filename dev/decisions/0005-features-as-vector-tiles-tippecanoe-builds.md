@@ -27,7 +27,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
   - While the map zoomed and moved by itself, the 95th percentile between frames was 17.7 ms.
   - Picking at one point took 0.36 to 0.44 ms, and found another way than 0004's trial did at the same point; the trial judged the smallest area on each area as the tile holds it, cut at the tile's edge, which may be why, and which pick is right was not looked at.
 - Read by the same program, the archive with the limits lifted gave a first frame 145 to 448 ms after start, its 30 tiles read in 116 to 119 ms, and a median of 3.3 to 4.0 ms of the window's own work in a frame (two runs, 2026-10-24).
-  - The frame interval was not measured on an idle machine: other work on the machine that day slowed the default-limit archive too, to 46.9 ms at the 95th percentile.
+  - The 95th percentile between frames was 31.3 to 31.8 ms, but not on an idle machine: other work on the machine that day slowed the default-limit archive more, to 46.9 ms.
 
 ## Decision
 
