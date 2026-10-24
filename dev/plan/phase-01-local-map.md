@@ -222,7 +222,9 @@ A mapper looking at the window sees which features have gone longest without one
   - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
-  - The build reports no feature missing from zoom 16; where it reports one, the criterion is not met until tippecanoe's options are changed so that zoom 16 lacks none, such as `-pt` to keep small areas as they are.
+  - The build reports no feature missing from zoom 16; where it reports one, the criterion is not met until tippecanoe's options are changed so that zoom 16 lacks none.
+    - For small areas, `-pT` keeps them whole at the deepest zoom alone, where `-pt`, keeping them at every zoom, made a zoom 13 tile over Tokyo Station too large to build (2026-10-15).
+    - For short lines, a finer detail at the deepest zoom (`-d`) keeps them, as `-d16` brought back the 5 km square's two lines of two points when zoom 14 was the deepest (2026-10-15).
     - The maintainer chose it over accepting a bounded share missing (said 2026-10-24).
   - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
