@@ -17,13 +17,14 @@ A mapper looking at the window sees which features have gone longest without one
   - The area is the union of the municipalities' boundaries, whether or not they touch.
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality builds the archive again over all of them.
-- **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - Further out than zoom 16, tippecanoe thins the features in several ways, these among them, so one can be missing there until the map is zoomed in ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)):
+- **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tippecanoe drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+  - With tippecanoe's defaults, an area too small to draw at zoom 16 is either dropped or drawn as a small square larger than itself, and a line too short to draw there is dropped (A013).
+  - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
+  - Further out than zoom 16, tippecanoe thins the features in several ways, these among them, so one can be missing there until the map is zoomed in:
     - points are dropped everywhere, keeping 1 in 2.5 for each zoom out, as it does by default;
-    - an area too small to draw is either dropped or drawn as a small square larger than itself, and a line too short to draw is dropped, by default, at zoom 16 as well (A013);
+    - areas too small and lines too short to draw are dropped or, for areas, drawn as small squares, as at zoom 16;
     - and where any tile of a zoom grows too large, features lying closest together are dropped across that whole zoom, so dense places thin first.
   - A small area kept as a square is still its own object, selected and coloured as that object.
-  - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
     - A relation of any other type is not a feature.
@@ -43,7 +44,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R007**: Nothing the phase commits reveals where a developer works, as [CLAUDE.md](../../CLAUDE.md#keeping-a-developers-location-private) requires.
   - The municipalities come from outside the tracked files, and no tracked file gives them a default.
   - Everything the commands write goes where git ignores it, since it is cut from the developer's area.
-- **R008**: At the stand-in area, on a developer's machine, the commands and the window keep to these times:
+- **R008**: At the stand-in area, on a developer's machine, with the window at 1,280 by 800 points, the commands and the window keep to these times:
   - The archive is built within 15 minutes of its command starting, from an extract of about 500 MB.
   - Within 1 second of the other command starting, the window shows the features of its opening view.
   - While the map is panned and zoomed, the interval between frames is within 20 ms at the 95th percentile, both over the opening view of the whole area and around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square.
@@ -84,7 +85,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
   - From the archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
   - Not measured: the window over an archive as 0005 decides it, with tiles to zoom 16 and thinned further out; and A003's denser square.
-  - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 13, which run up to about 450 KB where zoom 16's stay under 140 KB (A013), miss R008, noticed by the scale check.
+  - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 14, which run up to 463 KB where zoom 16's stay under 137 KB ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), miss R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it, and the window can state only the file's date as a bound, since a file is dated no earlier than the data it holds (R005), noticed by `osmium fileinfo` printing no replication timestamp.
@@ -190,6 +191,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The window opens showing the archive's whole area.
   - At zoom 16 and closer, every feature is drawn.
   - Further out than zoom 10, no feature is drawn, and the window says that zooming in shows them.
+  - Built from municipalities too far apart to fit the window at zoom 10, the window opens at zoom 10 over the area's centre.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
   - A selected point, line, and area each show their type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
@@ -220,7 +222,7 @@ A mapper looking at the window sees which features have gone longest without one
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
   - The build reports no feature missing from zoom 16; where it reports one, the criterion is not met until tippecanoe's options are changed so that zoom 16 lacks none, such as `-pt` to keep small areas as they are.
     - The maintainer chose it over accepting a bounded share missing (said 2026-10-24).
-  - Check: on a developer's machine, with the machine and the number of features recorded.
+  - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.
     - Time the command that builds the archive, and the other until the features of its opening view show, and record the interval between frames while the program itself pans and zooms the map without a pause, once over the opening view and once around Tokyo Station, as A004's trial did, since egui draws no frame while nothing moves and a pause by hand would count as a long one.
