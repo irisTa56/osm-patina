@@ -10,13 +10,13 @@ A mapper looking at the window sees which features have gone longest without one
 
 ## Requirements & Constraints
 
-- **R001**: Given a regional extract on disk and one or more municipalities, each by name or by the id of its boundary relation in OSM, one command builds the map of their area as an archive of vector tiles, and given that archive, another command opens a window showing its whole area ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - A command given no municipality, or one the extract does not hold, is refused, with a message that says so.
+- **R001**: Given a regional extract on disk and a file listing one or more municipalities, each by name or by the id of its boundary relation in OSM, one command builds the map of their area as an archive of vector tiles, and given that archive, another command opens a window showing its whole area ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+  - A list with no municipality, or with one the extract does not hold, is refused, with a message that says so.
   - A name that matches several boundaries in the extract, such as a ward name several cities share, is refused, with the ids of the boundaries it matches.
   - Municipalities whose boundaries overlap, such as a city given with one of its own wards, are refused, with a message that says which.
   - The area is the union of the municipalities' boundaries, whether or not they touch.
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
-  - Adding a municipality builds the archive again over all of them.
+  - Adding a municipality is adding it to the file and building the archive again over all of them; the program keeps no list of its own.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tippecanoe drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - With tippecanoe's defaults, an area too small to draw at zoom 16 is either dropped or drawn as a small square larger than itself, and a line too short to draw there is dropped (A013).
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
@@ -42,7 +42,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
   - The [Attribution Guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines) allow a credit to collapse on interaction (checked 2026-10-03), but one that stays needs no reading of those conditions.
 - **R007**: Nothing the phase commits reveals where a developer works, as [CLAUDE.md](../../CLAUDE.md#keeping-a-developers-location-private) requires.
-  - The municipalities come from outside the tracked files, and no tracked file gives them a default.
+  - The file listing the municipalities sits outside the tracked files, and no tracked file gives them a default.
   - Everything the commands write goes where git ignores it, since it is cut from the developer's area.
 - **R008**: At the stand-in area, on a developer's machine, with the window at 1,280 by 800 points, the commands and the window keep to these times:
   - The archive is built within 15 minutes of its command starting, from an extract of about 500 MB.
@@ -143,6 +143,8 @@ A mapper looking at the window sees which features have gone longest without one
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - Municipalities, by name or by the id of their boundary relation, rather than a centre point and a size, because the map is meant to grow by the municipalities added, up to about a prefecture.
   - The maintainer chose it (said 2026-10-24).
+- The municipalities listed in a file the developer keeps outside the repository, rather than given as arguments each time, written into the archive, or kept by the program, because adding or removing one is then a line of that file, and the program keeps no state.
+  - The maintainer chose it (said 2026-10-25).
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
   - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features (checked 2026-10-03).
   - A Protomaps archive is a file the developer downloads, cut with `pmtiles extract` from a planet build of about 120 GB, and keeps up to date, where OpenFreeMap's tiles are requested as the window needs them ([its downloads page](https://docs.protomaps.com/basemaps/downloads), read 2026-10-15).
@@ -185,7 +187,7 @@ A mapper looking at the window sees which features have gone longest without one
     - Another run, in which zoom 16 lacks a feature the command wrote, such as a line too short for zoom 16 to resolve, reads the report.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
-- **A command with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
+- **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
   - Check: a test runs the command that builds the archive each of those ways on the hand-written extract and reads the message.
 - **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R001, R002, R003, R004, R005, R006, R010, A005, A011, A012, A015.
   - The window opens showing the archive's whole area.
