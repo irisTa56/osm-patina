@@ -68,18 +68,20 @@ A mapper looking at the window sees which features have gone longest without one
   - The stand-in area held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
   - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: an area denser than the stand-in, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since the maintainer chose not to hold such an area to R008 (said 2026-10-14); noticed by the map lagging when one is opened.
-- **A004**: walkers draws the stand-in area's features within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 108,074 features over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from a zoom 14 archive on 2026-10-15.
-  - That archive was built with tippecanoe's default limits, under which two tiles over Tokyo Station had coarser coordinates; the archive 0005 decides, with the limits lifted, has those two tiles at 548 and 599 KB rather than 496 and 491 KB.
-  - Over that archive, on 2026-10-24, reading the tiles, building them, and the window's own work in a frame took what they took before, but the frame interval was not measured on an idle machine: other work on it that day slowed the earlier archive too, to 46.9 ms at the 95th percentile.
-  - The 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
-  - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
-  - From the archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
+- **A004**: walkers draws the stand-in area's features within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 108,074 features over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14, two from a zoom 14 archive built with tippecanoe's default limits on 2026-10-15, and two from the archive 0005 decides, with the limits lifted, on 2026-10-24.
+  - In the runs from GeoJSON and from the default-limit archive, the 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
+  - The window's own work in a frame had a median of 0.15 ms, and of 3.3 to 4.6 ms once the base map's names were drawn in Japanese.
+  - From the default-limit archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
+  - The default limits had coarsened two tiles over Tokyo Station, which the decided archive holds at 548 and 599 KB rather than 496 and 491 KB.
+    - From it, the first frame came 145 to 448 ms after the program started, and reading and building the tiles took what they took before.
+    - Its frame interval was not measured on an idle machine: other work on the machine that day slowed the default-limit archive too, to 46.9 ms at the 95th percentile.
   - Not measured: A003's denser square.
   - Risk: a slower machine, or the program's own work on top of the trial's, misses R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it and R005 has nothing to show, noticed by `osmium fileinfo` printing no replication timestamp.
-    - The extract file's own date, carried into the archive as the header's would be, is the fallback, not the archive's, which is when it was built.
+    - The fallback is the extract file's own date, carried into the archive, not the archive's, which is when it was built.
+    - The file's date is when it was written to the disk, at or after the data's, so the window states it as the file's date, one the data is no newer than, in words that tell it apart from a date the header gives.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A007**: Cutting and exporting the largest rectangle takes about 5 seconds from an extract of about 500 MB. Source: [0002](../decisions/0002-osmium-tool-selects-and-assembles.md), run 2026-10-04.
