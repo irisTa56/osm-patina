@@ -44,7 +44,8 @@ A mapper looking at the window sees which features have gone longest without one
 - **R008**: At the stand-in area, on a developer's machine, the commands and the window keep to these times:
   - The archive is built within 15 minutes of its command starting, from an extract of about 500 MB.
   - Within 1 second of the other command starting, the window shows the features of its opening view.
-  - Around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square, the interval between frames while the map is panned and zoomed is within 20 ms at the 95th percentile.
+  - While the map is panned and zoomed, the interval between frames is within 20 ms at the 95th percentile, both over the opening view of the whole area and around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square.
+    - The maintainer chose to hold the opening view to it, where the further zooms' tiles are the largest (said 2026-10-24).
 - **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)) and draws the map itself, in no page or browser and with no JavaScript ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)), and its automated checks run in `mise run pre-commit` and in CI.
   - The tests that drive the window are meant to run in CI as well, and where that proves not to work, the maintainer accepts running them on a developer's machine alone (said 2026-10-11 of tests that drove a page, and carried over to the window on 2026-10-14).
 - **R010**: The features are drawn over a base map in muted colours, with its place and street names above them.
@@ -81,7 +82,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
   - From the archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
   - Not measured: the window over an archive as 0005 decides it, with tiles to zoom 16 and thinned further out; and A003's denser square.
-  - Risk: a slower machine, the program's own work on top of the trial's, or the deeper tiles miss R008, noticed by the scale check.
+  - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 13, which run up to about 450 KB where zoom 16's stay under 140 KB (A013), miss R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it, and the window can state only the file's date as a bound, since a file is dated no earlier than the data it holds (R005), noticed by `osmium fileinfo` printing no replication timestamp.
@@ -212,13 +213,13 @@ A mapper looking at the window sees which features have gone longest without one
 - **The stand-in area builds, opens, and answers within R008's times, from an extract that dates its objects and itself, with no feature missing unaccounted for** — verifies R001, R002, R005, R008, A001, A004, A005, A007, A013, A016, A017.
   - The Kanto extract has a `version` and a `timestamp` on every object, and its header states the date of its data.
   - The archive is built, and the window shows the features of its opening view, each within R008's time of its command starting.
-  - Around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
+  - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
   - Check: on a developer's machine, with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.
-    - Time the command that builds the archive, and the other until the features of its opening view show, and record the interval between frames while the program itself pans and zooms the map around Tokyo Station without a pause, as A004's trial did, since egui draws no frame while nothing moves and a pause by hand would count as a long one.
+    - Time the command that builds the archive, and the other until the features of its opening view show, and record the interval between frames while the program itself pans and zooms the map without a pause, once over the opening view and once around Tokyo Station, as A004's trial did, since egui draws no frame while nothing moves and a pause by hand would count as a long one.
     - Count the tagged objects that go into the build and the features the archive's zoom 16 tiles hold, and record what accounts for the difference.
 - **Building and opening a map leaves nothing in the repository that tells where a developer works** — verifies R007.
   - The working tree is clean after the stand-in area's archive has been built and opened.
