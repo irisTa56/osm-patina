@@ -18,9 +18,11 @@ A mapper looking at the window sees which features have gone longest without one
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality builds the archive again over all of them.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - Further out than zoom 16, tippecanoe thins the features ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), so one can be missing there until the map is zoomed in.
-    - Points are dropped everywhere, keeping 1 in 2.5 for each zoom out, as tippecanoe does by default.
-    - Where a zoom's tiles grow too large, features lying closest together are dropped across that zoom, so dense places thin first.
+  - Further out than zoom 16, tippecanoe thins the features in several ways, these among them, so one can be missing there until the map is zoomed in ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)):
+    - points are dropped everywhere, keeping 1 in 2.5 for each zoom out, as it does by default;
+    - an area too small to draw is either dropped or drawn as a small square larger than itself, and a line too short to draw is dropped, by default, at zoom 16 as well (A013);
+    - and where any tile of a zoom grows too large, features lying closest together are dropped across that whole zoom, so dense places thin first.
+  - A small area kept as a square is still its own object, selected and coloured as that object.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
@@ -109,10 +111,10 @@ A mapper looking at the window sees which features have gone longest without one
   - The [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists no Mesa, Vulkan driver, or software rasterizer among its packages (image 20261004.327.1, read 2026-10-14), so CI has to install one.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
-- **A013**: tippecanoe builds a prefecture's worth into an archive that holds every feature at zoom 16, within about ten minutes. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), a box around Tokyo's mainland, 9,683,164 features with no scope rules applied, tippecanoe 2.79.0 with `-pS --drop-densest-as-needed` on an Apple M3, 2026-10-24: 612 seconds and 611 MB for zooms 10 to 16, every zoom 16 tile under 137 KB, below the 500 KB over which tippecanoe thins.
+- **A013**: tippecanoe builds a prefecture's worth into an archive that holds every feature at zoom 16, within about ten minutes. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), a box around Tokyo's mainland, 9,683,164 features with no scope rules applied, tippecanoe 2.79.0 with `-pS --drop-densest-as-needed` on an Apple M3, 2026-10-24: 612 seconds and 611 MB for zooms 10 to 16, every zoom 16 tile under 137 KB, below the 500 KB over which a tile makes tippecanoe thin its whole zoom.
   - Without `--drop-densest-as-needed`, the same build failed, the further zooms' tiles being too large.
   - The features at zoom 16 were not counted, so that none went missing there rests on every tile there being under the limit, and on the stand-in square's zoom 14 to 16 build, in which zoom 16 held all 108,074.
-  - Features go missing at the deepest zoom in two ways: a tile over the limit is thinned, and with tippecanoe's defaults small areas and lines shorter than a tile's resolution are dropped, as 6 of the stand-in square's were when zoom 14 was the deepest (2026-10-15).
+  - Features go missing at the deepest zoom in two ways: a tile over the limit thins the whole zoom, and with tippecanoe's defaults small areas and lines shorter than a tile's resolution are dropped, as 6 of the stand-in square's were when zoom 14 was the deepest (2026-10-15).
   - Risk: in a denser area, or one with finer features, zoom 16 lacks some, noticed by the build command's report of them (R002).
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.

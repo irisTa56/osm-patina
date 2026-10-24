@@ -19,7 +19,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
   - [`elivagar`](https://github.com/folknor/elivagar) builds a base map's layers from PBF in a schema of its own.
 - Trials with tippecanoe 2.79.0, which mise's conda backend installed on macOS arm64, on an Apple M3:
   - From the 108,074 features of the 5 km square around Tokyo Station, 37 MB of GeoJSON, zooms 14 to 16 with no simplification at the deepest zoom (`-pS`) built in 3.0 seconds into 7.0 MB; zoom 16 held all 108,074, zoom 15 84,040, and zoom 14 74,381 (2026-10-16).
-  - From a box around Tokyo's mainland cut out of the Kanto extract, every tagged object with no scope rules applied, 9,683,164 features in 3.5 GB of GeoJSON, zooms 10 to 16 with `-pS` failed after 232 seconds, the further zooms' tiles being too large; with `--drop-densest-as-needed` added, which thins only a tile over tippecanoe's limit of 500 KB, it built in 612 seconds into 611 MB (2026-10-24).
+  - From a box around Tokyo's mainland cut out of the Kanto extract, every tagged object with no scope rules applied, 9,683,164 features in 3.5 GB of GeoJSON, zooms 10 to 16 with `-pS` failed after 232 seconds, the further zooms' tiles being too large; with `--drop-densest-as-needed` added, which thins a whole zoom where any of its tiles goes over tippecanoe's limit of 500 KB, it built in 612 seconds into 611 MB (2026-10-24).
     - Every zoom 16 tile was under 137 KB and at the default extent of 4,096, so nothing was thinned there; the features at zoom 16 were not counted.
     - Cutting the box took 7.5 seconds and exporting it 45 seconds.
 - [`osmium extract`](https://docs.osmcode.org/osmium/latest/osmium-extract.html) cuts by polygons given in an OSM file, merging several (multi)polygons into one area as long as they do not overlap (read 2026-10-24), which distinct municipalities' boundaries do not, though a city and one of its own wards do; not run, and how it takes municipalities that share an edge was not tried.
@@ -32,7 +32,14 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 ## Decision
 
 The area is the municipalities given, taken as the union of their boundaries in the extract; osmium-tool cuts and exports it as 0002 says, the features the rules admit are kept, and tippecanoe builds them into one PMTiles archive in one run, which the window reads.
-The archive holds zooms 10 to 16, zoom 10 being where a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view, and every feature at zoom 16, with no simplification at that zoom, and further out tippecanoe thins the features: it drops points everywhere, keeping 1 in 2.5 for each zoom out, as it does by default, and where a zoom's tiles grow too large it widens the spacing kept between features across that zoom, so dense places thin first (`--drop-densest-as-needed`, which tippecanoe suggests where its defaults alone cannot fit the tiles; its README, read 2026-10-24).
+The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view.
+Zoom 16 holds every feature, with no simplification there.
+Further out, tippecanoe thins the features as its README describes (read 2026-10-24), in these ways among others:
+
+- it drops points everywhere, keeping 1 in 2.5 for each zoom out, by default;
+- it drops an area too small to draw, or draws it as a small square larger than itself, and drops a line too short to draw, by default, which it does at zoom 16 as well and which the report below would show there;
+- and where any tile of a zoom grows too large, it widens the spacing kept between features across that whole zoom, so dense places thin first (`--drop-densest-as-needed`, which it suggests where its defaults alone cannot fit the tiles).
+
 The command that builds the archive compares the features it wrote with those zoom 16 holds and reports any that zoom 16 lacks, since tippecanoe drops features without an error.
 Each area carries its whole size, since a tile holds it cut at the tile's edge and the plan's R004 selects the smallest of several areas as a whole.
 Adding municipalities builds the archive again over all of them, rather than building the new ones alone and joining their tiles to the old.
