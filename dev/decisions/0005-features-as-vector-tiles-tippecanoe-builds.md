@@ -31,13 +31,15 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 ## Decision
 
 The area is the municipalities given, taken as the union of their boundaries in the extract; osmium-tool cuts and exports it as 0002 says, the features the rules admit are kept, and tippecanoe builds them into one PMTiles archive in one run, which the window reads.
-The archive holds zooms 10 to 16, every feature at zoom 16, with no simplification at that zoom, and further out tippecanoe thins the features as it does by default, the densest first where a tile goes over its limit.
+The archive holds zooms 10 to 16, every feature at zoom 16, with no simplification at that zoom, and further out tippecanoe thins the features, the densest first where a tile goes over its limit (`--drop-densest-as-needed`), which tippecanoe suggests where its defaults alone cannot fit the tiles.
+The command that builds the archive compares the features it wrote with those zoom 16 holds and reports any that zoom 16 lacks, since tippecanoe drops features without an error.
 Each area carries its whole size, since a tile holds it cut at the tile's edge and the plan's R004 selects the smallest of several areas as a whole.
 Adding municipalities builds the archive again over all of them, rather than building the new ones alone and joining their tiles to the old.
 
 ## Rejected alternatives
 
 - **Every feature at zoom 14, with tippecanoe's limits lifted**: the whole of a 5 km area would show every feature at once, but it holds every feature at the furthest zoom it draws, where tiles grow with the area's density; the maintainer judged thinning further out natural, since they zoom in for the smaller features (said 2026-10-24).
+- **Thinning a fixed fraction further out (`--drop-fraction-as-needed`)**, tippecanoe's other suggestion: dense places would not thin first, but sparse ones would lose features as well; offered both, with densest first recommended, the maintainer chose densest first (said 2026-10-24).
 - **Building each municipality's archive alone and joining them with `tile-join`**: adding a municipality would build only that one, but a feature crossing a boundary is in both cuts, so each feature would need a rule for which municipality owns it; the thinning further out would differ on either side of a boundary; and a newer extract rebuilds every municipality anyway to bring the dates up; the maintainer agreed to building again (said 2026-10-24).
 - **A rectangle of up to 5 km around a chosen point, built and opened one at a time**: each build is quick, but the map holds one rectangle, and growing it brings back the overlap of the previous alternative.
 - **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view; offered the tiles and the layer built from the export, the maintainer chose the tiles (said 2026-10-15).
@@ -48,5 +50,5 @@ Adding municipalities builds the archive again over all of them, rather than bui
 - **Dependencies added**: tippecanoe, installed by mise's conda backend and run as a separate program, and the `pmtiles` and `mvt-reader` crates.
 - **Risks**:
   - conda-forge's build of tippecanoe on Linux has not been installed, which CI would show by failing at install.
-  - Building a prefecture's worth takes about ten minutes, and every municipality added or every newer extract takes that again.
+  - Building a prefecture's worth takes about ten minutes, and every municipality added or every newer extract takes that again; reading zoom 16 back to compare it with what was written adds to that.
   - An archive is as old as the extract it was built from, which the window shows by the data's date.

@@ -18,7 +18,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality builds the archive again over all of them.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - Further out than zoom 16, the features are thinned as tippecanoe does by default, so one can be missing there until the map is zoomed in.
+  - Further out than zoom 16, tippecanoe thins the features, the densest first where a tile goes over its limit ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), so one can be missing there until the map is zoomed in.
+  - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
     - A relation of any other type is not a feature.
@@ -107,8 +108,9 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 - **A013**: tippecanoe builds a prefecture's worth into an archive that holds every feature at zoom 16, within about ten minutes. Source: the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), a box around Tokyo's mainland, 9,683,164 features with no scope rules applied, tippecanoe 2.79.0 with `-pS --drop-densest-as-needed` on an Apple M3, 2026-10-24: 612 seconds and 611 MB for zooms 10 to 16, every zoom 16 tile under 137 KB, below the 500 KB over which tippecanoe thins.
   - Without `--drop-densest-as-needed`, the same build failed, the further zooms' tiles being too large.
-  - The features at zoom 16 were not counted; that none was thinned there rests on every tile there being under the limit.
-  - Risk: in a denser area a zoom 16 tile goes over the limit and loses features, noticed by counting the features at zoom 16 when such an area is built.
+  - The features at zoom 16 were not counted, so that none went missing there rests on every tile there being under the limit, and on the stand-in square's zoom 14 to 16 build, in which zoom 16 held all 108,074.
+  - Features go missing at the deepest zoom in two ways: a tile over the limit is thinned, and with tippecanoe's defaults small areas and lines shorter than a tile's resolution are dropped, as 6 of the stand-in square's were when zoom 14 was the deepest (2026-10-15).
+  - Risk: in a denser area, or one with finer features, zoom 16 lacks some, noticed by the build command's report of them (R002).
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.59 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
@@ -171,7 +173,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
+  - A feature written but missing from zoom 16 is reported by the command that builds the archive.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and two of its municipalities that do not touch, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
+    - Another run, in which zoom 16 lacks a feature the command wrote, such as a line too short for zoom 16 to resolve, reads the report.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A command with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
