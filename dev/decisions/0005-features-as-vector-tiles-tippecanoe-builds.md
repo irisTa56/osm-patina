@@ -8,9 +8,9 @@
 osmium-tool cuts the area out of the extract and writes its features as GeoJSON ([0002](0002-osmium-tool-selects-and-assembles.md)), and walkers draws them as a layer of tiles ([0004](0004-map-drawn-in-rust-in-a-native-window.md)).
 In 0004's trial, the program built that layer in memory from the GeoJSON.
 
-- Every area is cut by reading the whole extract and exported, about 50 seconds for a prefecture's worth of the Kanto extract ([phase 01's A007](../plan/phase-01-local-map.md#assumptions--risks)), and the roadmap's scope has the map opened at the user's location or a point picked on it later ([roadmap](../ROADMAP.md#scope)).
-  - The maintainer judged a wait of several seconds each time the point is set or moved while the map is in use too long (said 2026-10-14).
-  - Tiles built once are opened again without cutting, and anywhere within them.
+- Every area is cut by reading the whole extract and exported, about 50 seconds for a prefecture's worth of the Kanto extract ([phase 01's A007](../plan/phase-01-local-map.md#assumptions--risks)).
+  - The maintainer judged a wait of several seconds too long each time the map is moved to another place while in use (said 2026-10-14).
+  - Tiles built once are opened again without cutting, and the window reads only the tiles in view, reading more as the map moves.
 - The maintainer looks at about 5 km in one sitting, zooming in for the smaller features, and wants the map to hold up to about a prefecture, growing by the municipalities added (said 2026-10-24).
 - [tippecanoe](https://github.com/felt/tippecanoe) builds vector tiles from GeoJSON, and since 2.17 writes them as one PMTiles archive (its README, read 2026-10-15).
 - None of the tools found that build vector tiles in Rust takes this phase's features as they are (read 2026-10-15):
@@ -23,7 +23,9 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
     - The largest tile was 333 KB at zoom 10, 447 KB at zoom 13, 463 KB at zoom 14, 296 KB at zoom 15, and 137 KB at zoom 16, every tile at the default extent of 4,096.
     - No zoom 16 tile was near the limit, so nothing was thinned there for size; the features at zoom 16 were not counted.
     - Cutting the box took 7.5 seconds and exporting it 45 seconds.
-- [`osmium extract`](https://docs.osmcode.org/osmium/latest/osmium-extract.html) cuts by polygons given in an OSM file, merging several (multi)polygons into one area as long as they do not overlap (read 2026-10-24), which distinct municipalities' boundaries do not, though a city and one of its own wards do; not run, and how it takes municipalities that share an edge was not tried.
+- [`osmium extract`](https://docs.osmcode.org/osmium/latest/osmium-extract.html) cuts by polygons given in an OSM file, merging several (multi)polygons into one area as long as they do not overlap (read 2026-10-24), which distinct municipalities' boundaries do not, though a city and one of its own wards do.
+  - Cut by two wards of Tokyo that share an edge, their boundary relations with their ways and nodes in one file, the Kanto extract gave no error and held exactly the objects of the two wards cut one at a time, those reaching across the edge once (osmium 1.19.1, 2026-10-25).
+  - Municipalities apart from each other were not tried.
 - The program read a zoom 14 archive of that square, built with tippecanoe's default limits, with the [`pmtiles`](https://docs.rs/pmtiles/0.24.0) crate 0.24.0 and [`mvt-reader`](https://docs.rs/mvt-reader/2.5.0) 2.5.0, which walkers 0.61.0 reads PMTiles and vector tiles with, and drew it as 0004's trial did, closer zooms as pieces of zoom 14 tiles, in two runs on an idle machine (2026-10-15).
   - Its first frame came 127 to 377 ms after it started, and the 30 tiles it needed were read in 115 ms.
   - While the map zoomed and moved by itself, the 95th percentile between frames was 17.7 ms.

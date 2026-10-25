@@ -17,7 +17,7 @@ An old edit does not prove the data is wrong, so the map points at candidates, w
   - shops and other places visible from the street
 - **Area**: the map holds the features of the municipalities chosen, up to about a prefecture, and a mapper looks at about 5 km of it in one sitting, zooming in to see the smaller features.
   - The municipalities a developer picks are never hard-coded, in the repository or in anything published from it, because they can reveal where they live.
-  - Later, where the map opens may be the user's current location or a point picked on the map.
+  - Later, the map may open at the user's current location.
 - **Viewing**: on the local machine first, then published later.
 
 ## Non-goals
@@ -29,7 +29,7 @@ An old edit does not prove the data is wrong, so the map points at candidates, w
 
 - **Phase 01: Local map for one area**: on a developer's machine, a mapper can see which features in one chosen area have gone longest without an edit — [plan](plan/phase-01-local-map.md), in progress
 - **Vertex-aware freshness**: a feature whose shape was fixed counts as edited, which Local map for one area does not yet cover.
-- **Location**: the map centres on the current location or a picked point.
+- **Location**: the map opens at the user's current location.
 - **Publishing**: anyone can open the map for an area they choose, without a developer's machine.
 
 Local map for one area comes first, and Publishing follows Location, because until Location the only map is of the municipalities a developer picked.

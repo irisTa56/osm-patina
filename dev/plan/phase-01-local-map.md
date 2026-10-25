@@ -65,7 +65,7 @@ A mapper looking at the window sees which features have gone longest without one
   - This goes to the Vertex-aware freshness phase.
 - **Which attribute an edit touched**: freshness is per feature, so a shop whose opening hours changed last week shows as fresh.
   - The roadmap has no phase for it.
-- **Opening the map at the current location or at a point picked on it**: the Location phase.
+- **Opening the map at the user's current location**: the Location phase.
 - **Downloading or updating the extract**: the developer downloads it and passes its path, which keeps this phase to the map.
 - **Assembling geometry in Rust**: not in this phase ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)).
 - **Opening the map anywhere but a developer's machine**: the Publishing phase.
@@ -126,8 +126,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3 for a box around Tokyo's mainland, 7.5 seconds to cut, 45 seconds to export, and 612 seconds for the tiles (A007, A013), with no scope rules applied, which would leave fewer features.
   - Not measured: taking the municipalities' boundaries out of the extract, keeping the features the rules admit, writing what tippecanoe reads, reading zoom 16 back to compare it with what was written (R002), and the whole command in one run.
   - Risk: those parts take more than the 4 minutes or so left, noticed by the scale check.
-- **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and distinct municipalities do not, R001 refusing those that do; not run, and municipalities that share an edge were not tried.
-  - Risk: features on an edge two municipalities share are lost or doubled, noticed by the end-to-end test.
+- **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and distinct municipalities do not, R001 refusing those that do; and two wards of Tokyo that share an edge, cut from the Kanto extract by both boundaries in one file with osmium 1.19.1, held exactly the objects of the two wards cut one at a time, those reaching across the edge once (2026-10-25).
+  - Not tried: municipalities apart from each other.
+  - Risk: features of a municipality apart from the others are lost, noticed by the end-to-end test.
   - Risk: a municipality whose boundary reaches past the extract's edge comes out incomplete, noticed by the command refusing it or by features missing near that edge.
 
 ## Decisions
