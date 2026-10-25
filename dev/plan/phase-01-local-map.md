@@ -30,6 +30,8 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
   - A feature osmium-tool does not produce for the area is not drawn, which the maintainer accepted as a limit of this phase on 2026-10-04.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
+  - A way whose nodes all lie at one position has no extent, so it is not drawn, and the command that builds the archive leaves it out before tippecanoe, which writes nothing for it (tippecanoe 2.79.0, 2026-10-25); the maintainer chose it (said 2026-10-25).
+    - Tokyo's extract held no tagged way of that kind (2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
   - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date.
@@ -74,6 +76,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A001**: A Geofabrik extract keeps every object's `version` and `timestamp`. Source: `osmium fileinfo -e` on the Kanto extract, run 2026-10-04 ([0001](../decisions/0001-regional-extract-as-data-source.md)).
   - Risk: features come out without a date and are drawn grey (R003), noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
 - **A002**: `osmium export` writes each feature's type, id, version, and timestamp. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
+  - An object without a version or a timestamp comes out with 0 for it (run of 2026-10-25), and since OSM's versions start at 1 and its timestamps fall after 2004, the program takes 0 as unknown (R003, R004).
   - Risk: the map has no number to colour by, noticed by the end-to-end test.
 - **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the square around Tokyo Station, which R008's interval between frames is stated for. Source: counts of the four squares.
   - The square around Tokyo Station held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
@@ -181,7 +184,7 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature R002 says is not drawn is absent.
   - A feature written but missing from zoom 16 is reported by the command that builds the archive.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
-    - Another run, in which zoom 16 lacks a feature the command wrote, such as a line too short for zoom 16 to resolve, reads the report.
+    - Another run, in which zoom 16 lacks a feature the command wrote, reads the report.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
