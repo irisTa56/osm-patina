@@ -14,7 +14,8 @@ A mapper looking at the window sees which features have gone longest without one
   - A list with no municipality, or with one the extract does not hold, is refused, with a message that says so.
   - A name that matches several boundaries in the extract, such as a ward name several cities share, is refused, with the ids of the boundaries it matches.
   - Municipalities whose boundaries overlap, such as a city given with one of its own wards, are refused, with a message that says which.
-  - The area is the union of the municipalities' boundaries, whether or not they touch, and a municipality's features are kept where boundaries not in the list lie inside its own.
+  - The area is the union of the municipalities' boundaries, whether or not they touch.
+    - The features inside a boundary that is a member of a listed municipality's relation, and not itself listed, are kept like the rest of that municipality's.
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality is adding it to the file and building the archive again over all of them; the program keeps no list of its own.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tippecanoe drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
@@ -165,7 +166,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **osmium-tool**: taking the municipalities' boundaries, selecting the area, and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), declared in `mise.toml` at its latest release, which was 1.19.1 on 2026-10-13, and installed by `mise install` through the conda backend.
 - **tippecanoe**: building the area's features into a PMTiles archive ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), declared in `mise.toml` at its latest release, which was 2.79.0 on 2026-10-15, and installed by `mise install` through the conda backend.
 - **Rust toolchain**: building and testing the program, declared in `mise.toml` at its latest release.
-- **eframe 0.36 with egui and its wgpu backend, and walkers 0.61 with its `mvt` feature**: the window, and the map in it ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)).
+- **eframe 0.36 with egui and eframe's wgpu backend, on by default in 0.36.2, and walkers 0.61 with its `mvt` feature**: the window, and the map in it ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)).
 - **The `pmtiles` and `mvt-reader` crates, at the releases walkers 0.61 depends on**: reading the archive's tiles ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
 - **Other Rust crates** the program itself depends on, chosen while building, for these purposes only, with crates that only its tests use left to the building session:
   - parsing the commands' arguments,
@@ -182,7 +183,11 @@ A mapper looking at the window sees which features have gone longest without one
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
   - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
-  - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, with a boundary relation, with ways and nodes of its own, that is a member of one of the three's relations and lies inside it, and objects both inside and outside that inner boundary, a tagged way of two nodes at one position, and a node, a way, and a multipolygon relation written without a version or a timestamp, among its objects, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
+  - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
+    - Two of the municipalities share an edge, and one lies apart from them.
+    - A boundary relation with ways and nodes of its own is a member of one municipality's relation and lies inside it, with objects both inside and outside it.
+    - A tagged way has its two nodes at one position.
+    - A node, a way, and a multipolygon relation are written without a version or a timestamp.
     - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the way of two nodes at one position for as long as tippecanoe writes nothing for it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
