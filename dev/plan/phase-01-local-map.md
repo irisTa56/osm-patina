@@ -15,7 +15,7 @@ A mapper looking at the window sees which features have gone longest without one
   - A name that matches several boundaries in the extract, such as a ward name several cities share, is refused, with the ids of the boundaries it matches.
   - Municipalities whose boundaries overlap, such as a city given with one of its own wards, are refused, with a message that says which.
   - The area is the union of the municipalities' boundaries, whether or not they touch.
-    - The features inside a boundary that is a member of a listed municipality's relation, and not itself listed, are kept like the rest of that municipality's.
+    - Every feature inside a listed municipality's boundary is kept, whatever boundaries, its relation's members or theirs, lie inside it.
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality is adding it to the file and building the archive again over all of them; the program keeps no list of its own.
 - **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tippecanoe drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
@@ -185,7 +185,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
     - Two of the municipalities share an edge, and one lies apart from them.
-    - A boundary relation with ways and nodes of its own is a member of one municipality's relation and lies inside it, with objects both inside and outside it.
+    - A boundary relation with ways and nodes of its own is a member of one municipality's relation and lies inside it, and another is a member of that one and lies inside it in turn, with a tagged object inside the innermost, one inside the first but not the innermost, and one inside the municipality alone.
     - A tagged way has its two nodes at one position.
     - A node, a way, and a multipolygon relation are written without a version or a timestamp.
     - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the way of two nodes at one position for as long as tippecanoe writes nothing for it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
