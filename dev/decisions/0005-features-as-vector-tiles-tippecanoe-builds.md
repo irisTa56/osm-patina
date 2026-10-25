@@ -38,7 +38,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 
 ## Decision
 
-The area is the municipalities given, taken as the union of their boundaries in the extract; osmium-tool cuts and exports it as 0002 says, the features the rules admit are kept, and tippecanoe builds them into one PMTiles archive in one run, which the window reads.
+The area is the municipalities given, taken as the union of their boundaries in the extract, each without the boundaries inside it; osmium-tool cuts and exports it as 0002 says, the features the rules admit are kept, and tippecanoe builds them into one PMTiles archive in one run, which the window reads.
 The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view.
 Zoom 16 is the closest zoom it holds, the closest the trial over the box around Tokyo's mainland built: nothing there was thinned for size, its largest tile at 137 KB, where zooms 10 to 14 were thinned and the build without thinning failed; nothing at zoom 15 was thinned for size either, so 15 might serve as the closest as well, which no build has tried.
 A closer zoom would hold the same features in about three times as many tiles for each zoom, as zoom 16 held of zoom 15's (21,826 against 6,856), where the window draws closer views by enlarging zoom 16's tiles, as 0004's trial did with zoom 14's; none was tried.
