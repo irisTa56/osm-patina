@@ -22,7 +22,7 @@ A trial below showed that it is possible, and asked then to choose between the t
   - With that expression replaced by the name in its own script and a font with Japanese glyphs added, the trial drew the names in Japanese, and frames kept to the same rate.
 - MapLibre GL JS can be called from Rust compiled to WebAssembly with no JavaScript in the commits (a trial with wasm-bindgen 0.2.129 and trunk 0.21.14 in Chromium on macOS, 2026-10-13): the library's map was declared in Rust, and trunk wrote the script that loads the WebAssembly.
   - The page would then still run MapLibre GL JS's JavaScript, which the build would have to download, and the JavaScript that wasm-bindgen and trunk generate.
-- Of the other ways found to draw a map in Rust, none was run (read 2026-10-13): [`galileo`](https://crates.io/crates/galileo) 0.2.1 was last released on 2025-07-11, [`maplibre`](https://crates.io/crates/maplibre) 0.0.3 draws neither names nor GeoJSON, and no way to put [`maplibre_native`](https://crates.io/crates/maplibre_native) 0.10.0 in a window was found in its documents.
+- Of the other ways found to draw a map in Rust, none was run (read 2026-10-13): [`galileo`](https://crates.io/crates/galileo) 0.2.1 was last released on 2025-07-11, [`maplibre`](https://crates.io/crates/maplibre) 0.0.3 draws neither names nor GeoJSON, and [`maplibre_native`](https://crates.io/crates/maplibre_native) 0.10.0 has a `wgpu` feature that renders into a texture shared with the host's wgpu device (`set_device_queue` and `take_texture` in `src/renderer/image_renderer.rs`, read 2026-10-25), which an eframe window could show, though its README does not list the feature.
 
 ## Decision
 
@@ -41,8 +41,9 @@ The map is drawn in no page and no browser, and nothing the program runs is Java
 
 ## Consequences
 
-- **Dependencies added**: eframe with egui, and walkers with its `mvt` feature.
+- **Dependencies added**: eframe with egui and its wgpu backend, which walkers' renderer needs; walkers with its `mvt` feature; and a crate that finds a font on the machine for names in Japanese, as qol-reweight uses `fontdb` for.
 - **Risks**:
   - walkers is not yet at 1.0, and between 0.60.0 and 0.61.0 it changed two things the trial's code used, so an update may take changes to the program, which its build would show.
   - Whatever is named in a non-Latin script gets no label until the program rewrites the style's expression for names or walkers evaluates `concat`, which the eye check of the base map would show.
-  - What walkers draws on the GPU is not in the shapes a test of the window reads, so a feature that is not drawn is caught only by the test that renders an image; where that test runs on a developer's machine alone, a change that stops the features being drawn passes CI, which the next run of it there would show.
+  - What walkers draws on the GPU is not in the shapes a test of the window reads, so a feature lost in walkers' own drawing, or in a renderer never installed, is caught only by the test that renders an image, where one missing from the tiles the program hands walkers is caught from those tiles; where that test runs on a developer's machine alone, a change that stops walkers drawing the features passes CI, which the next run of it there would show.
+  - A map that anyone opens without a developer's machine, as the roadmap's Publishing has it, would take installing the program or an eframe build for the web, which runs the JavaScript wasm-bindgen generates, and where walkers' vector drawing was reported under 10 frames a second ([walkers#583](https://github.com/podusowski/walkers/issues/583), open on 2026-10-25).
