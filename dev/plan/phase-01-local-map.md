@@ -64,7 +64,7 @@ A mapper looking at the window sees which features have gone longest without one
   - This goes to the Vertex-aware freshness phase.
 - **Which attribute an edit touched**: freshness is per feature, so a shop whose opening hours changed last week shows as fresh.
   - The roadmap has no phase for it.
-- **Opening the map at the user's current location**: the Location phase.
+- **Showing the user's current location and moving the map to it**: the Location phase.
 - **Downloading or updating the extract**: the developer downloads it and passes its path, which keeps this phase to the map.
 - **Assembling geometry in Rust**: not in this phase ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)).
 - **Opening the map anywhere but a developer's machine**: the Publishing phase.
