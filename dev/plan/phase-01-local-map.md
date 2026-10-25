@@ -32,10 +32,11 @@ A mapper looking at the window sees which features have gone longest without one
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
+  - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date, and selecting it shows its date as unknown.
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
-  - Where the extract's header gives no date, the window states the extract file's own date as one the data is no newer than, in words that tell it apart from a date the header gives; the maintainer chose it (said 2026-10-24).
+  - Where the extract's header gives no date, the window says that the data's date is unknown, rather than give the file's own date, which is when the file was written, usually near the day it was downloaded, and tells little of how old the data is; the maintainer chose it (said 2026-10-25).
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
   - The [Attribution Guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines) allow a credit to collapse on interaction (checked 2026-10-03), but one that stays needs no reading of those conditions.
 - **R007**: Nothing the phase commits reveals where a developer works, as [CLAUDE.md](../../CLAUDE.md#keeping-a-developers-location-private) requires.
@@ -70,7 +71,7 @@ A mapper looking at the window sees which features have gone longest without one
 ## Assumptions & Risks
 
 - **A001**: A Geofabrik extract keeps every object's `version` and `timestamp`. Source: `osmium fileinfo -e` on the Kanto extract, run 2026-10-04 ([0001](../decisions/0001-regional-extract-as-data-source.md)).
-  - Risk: features come out without a date, noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
+  - Risk: features come out without a date and are drawn grey (R003), noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
 - **A002**: `osmium export` writes each feature's type, id, version, and timestamp. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
   - Risk: the map has no number to colour by, noticed by the end-to-end test.
 - **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the square around Tokyo Station, which R008's interval between frames is stated for. Source: counts of the four squares.
@@ -85,7 +86,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 14, which run up to 463 KB where zoom 16's stay under 137 KB ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), miss R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
-  - Risk: another extract lacks it, and the window can state only the file's date as a bound, since a file is dated no earlier than the data it holds (R005), noticed by `osmium fileinfo` printing no replication timestamp.
+  - Risk: another extract lacks it, and the window says the data's date is unknown (R005), noticed by `osmium fileinfo` printing no replication timestamp.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A007**: Cutting a prefecture's worth out of an extract of about 500 MB takes seconds, and exporting it under a minute. Source: a box around Tokyo's mainland cut out of the Kanto extract, 7.5 seconds to cut and 45 seconds to export 9,683,164 features with no scope rules applied, osmium on an Apple M3, 2026-10-24 ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
@@ -195,7 +196,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Selecting where two areas overlap, neither within the other, at a point where the tile holds less of the larger one, selects the one smaller as a whole.
   - Selecting where a point or a line lies over an area selects the point or the line.
   - The window states the date of the data.
-  - Built from an extract whose header gives no date, and whose file is dated days before the build, the window states the extract file's date, not the build's, in the words that mark it as one the data is no newer than.
+  - Built from an extract whose header gives no date, the window says that the data's date is unknown.
+  - A feature whose object has no `timestamp` is drawn grey, the legend gives grey as an unknown date, and selecting it shows its date as unknown.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
   - Given no font for Japanese, the window still opens, and says that some names cannot be drawn.
