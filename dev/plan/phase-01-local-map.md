@@ -37,7 +37,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - A version or a date the object lacks, as in an extract written without metadata, is shown as unknown.
   - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
-  - Of several points or lines there, the nearest is selected, rather than whichever its tile happens to hold first, which differs by the tool that built the tiles (0005); the maintainer chose it (said 2026-10-25).
+  - Of several points or lines there, the nearest is selected, rather than whichever its tile happens to hold first, which differs by the tool that built the tiles (0005).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
   - Where the extract's header gives no date, the window says that the data's date is unknown, rather than give the file's own date, which is when the file was written, usually near the day it was downloaded, and tells little of how old the data is; the maintainer chose it (said 2026-10-25).
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
@@ -132,6 +132,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: features of a municipality apart from the others are lost, noticed by the end-to-end test.
   - Risk: a boundary reaches the cut with the boundaries inside it, which overlap it and leave part of its features out with no error (0005), noticed by the end-to-end test.
   - Risk: a municipality whose boundary reaches past the extract's edge comes out incomplete, noticed by the command refusing it or by features missing near that edge.
+- **A018**: A Rust crate writes GeoParquet that tylertoo reads, with each feature's type, id, version, and timestamp. Unverified: the trial wrote it with DuckDB ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)), and no crate was tried.
+  - Risk: none writes what tylertoo reads, noticed by the end-to-end test failing to build; DuckDB, run as another program as the trial ran it, is then the way out.
 
 ## Decisions
 
@@ -141,7 +143,7 @@ A mapper looking at the window sees which features have gone longest without one
 - [0004. The map is drawn in Rust, in a native window](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)
 - [0005. The features reach the window as vector tiles that tylertoo builds](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)
 - The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
-  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13), and for tylertoo (said 2026-10-25).
+  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13).
 - One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - Municipalities, by name or by the id of their boundary relation, rather than a centre point and a size, because the map is meant to grow by the municipalities added, up to about a prefecture.
@@ -182,7 +184,7 @@ A mapper looking at the window sees which features have gone longest without one
 
 ## Done when
 
-- **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017.
+- **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017, A018.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
   - Further out than zoom 16, each feature a tile holds is drawn from its own object alone, even in a tile that went over the size limit.
@@ -195,11 +197,12 @@ A mapper looking at the window sees which features have gone longest without one
       - a tagged way with one node inside the area and one outside it, coming out whole;
       - a boundary relation S1, with ways and nodes of its own, that is a member of one municipality's relation and lies inside that municipality, and a boundary relation S2 that is a member of S1 and lies inside S1, with a tagged object inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1;
       - a closed way tagged as a line, one tagged as an area, one with tags of both, such as a fence around a field, and one with tags of neither, such as a part of a building, each coming out once;
+      - two lines of the same kind that touch end to end;
       - a tagged way with its two nodes at one position;
       - an area of about 1 cm on a side;
       - and a node, a way, and a multipolygon relation written without a version or a timestamp.
     - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the area of about 1 cm for as long as tylertoo drops it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
-    - It also builds the extract with a size limit small enough that a tile further out goes over it, and finds each feature that tile holds within the shape of the object it was built from.
+    - At every zoom further out than 16, it finds each feature the touching lines' tiles hold carrying one object's id and lying within a pixel of that zoom of that object; and it builds the extract again with a size limit small enough that a tile further out goes over it, and finds the same of each feature that tile holds.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
@@ -214,7 +217,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
   - Selecting where two areas overlap, neither within the other, at a point where the tile holds less of the larger one, selects the one smaller as a whole.
   - Selecting where a point or a line lies over an area selects the point or the line.
-  - Selecting between two lines, nearer one than the other, selects the nearer, whichever the tile holds first.
+  - Selecting near two lines, near two points, and near a point and a line, each pair at different distances and the nearer written after the farther in the extract, selects the nearer of each pair.
   - The window states the date of the data.
   - Built from an extract whose header gives no date, the window says that the data's date is unknown.
   - A feature whose object has no `timestamp` is drawn grey, and the legend gives grey as an unknown date.
