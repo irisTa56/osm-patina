@@ -22,8 +22,6 @@ A mapper looking at the window sees which features have gone longest without one
   - tylertoo drops at zoom 16 an area too small for a tile's grid to encode (A013); which options to build with is left to building.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports the type and id of any that zoom 16 lacks.
   - Further out than zoom 16, tylertoo thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
-    - Of the features that compete for one cell of tylertoo's grid there, the one whose last edit is oldest is kept (0005, A019); a zoom's count keeps the oldest of each neighbourhood only up to a share its density sets, and a tile over the size limit keeps features by their coordinates, so in dense places an old feature can be missing there.
-    - A feature with no date loses such a cell to one with a date, since an unknown date is not known to be old.
   - A feature drawn further out is never joined with another, so what is drawn there is selected and coloured as the one object it was built from.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
@@ -136,11 +134,6 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: a municipality whose boundary reaches past the extract's edge comes out incomplete, noticed by the command refusing it or by features missing near that edge.
 - **A018**: A Rust crate writes GeoParquet that tylertoo reads, with each feature's type, id, version, and timestamp. Unverified: the trial wrote it with DuckDB ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)), and no crate was tried.
   - Risk: none writes what tylertoo reads, noticed by the end-to-end test failing to build; DuckDB, run as another program as the trial ran it, is then the way out.
-- **A019**: tylertoo keeps the oldest of the features that compete for one cell further out when given a `--sort-key` column that grows with the age of the last edit. Source: hand-written files through tylertoo 0.8.0, where the larger value won a cell for two points in either input order, and for 60 pairs each of lines and of areas, the older given second ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
-  - A feature given no value, as one with no date is, loses every cell it contests to a feature with one, by 0.8.0's source (0005).
-  - A zoom's count follows the column within each neighbourhood, up to a share its density sets, and a tile over the size limit keeps the features of most coordinates instead, by 0.8.0's source (0005).
-  - Not tried: a real area.
-  - Risk: a release of tylertoo ranks otherwise, as its documentation describes for one after 0.8.0, noticed by the end-to-end test.
 
 ## Decisions
 
@@ -190,11 +183,10 @@ A mapper looking at the window sees which features have gone longest without one
 
 ## Done when
 
-- **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017, A018, A019.
+- **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017, A018.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
   - Further out than zoom 16, each feature a tile holds is drawn from its own object alone, even in a tile that went over the size limit.
-  - Further out, of two features of one kind first drawn at one zoom and lying in one cell of tylertoo's grid there, that zoom keeps the older, and of a dated one and one with no date, the dated one.
   - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
     - Two of the municipalities share an edge, and one lies apart from them.
@@ -205,7 +197,6 @@ A mapper looking at the window sees which features have gone longest without one
       - a boundary relation S1, with ways and nodes of its own, that is a member of one municipality's relation and lies inside that municipality, and a boundary relation S2 that is a member of S1 and lies inside S1, with a tagged object inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1;
       - a closed way tagged as a line, one tagged as an area, one with tags of both, such as a fence around a field, and one with tags of neither, such as a part of a building, each coming out once;
       - two lines of the same kind that touch end to end;
-      - two features of one kind first drawn at one zoom further out and lying in one cell of tylertoo's grid there, the older smaller than the newer and written after it, and such a pair of a dated feature and one with no date;
       - a tagged way with its two nodes at one position;
       - an area of about 1 cm on a side;
       - and a node, a way, and a multipolygon relation written without a version or a timestamp.
