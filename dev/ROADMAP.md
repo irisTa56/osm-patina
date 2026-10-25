@@ -15,9 +15,9 @@ An old edit does not prove the data is wrong, so the map points at candidates, w
   - roads and paths
   - street furniture, trees, and barriers
   - shops and other places visible from the street
-- **Area**: a rectangle around a chosen point, adjustable in size up to a long side of about 5 km.
-  - A point a developer picks is never hard-coded, in the repository or in anything published from it, because it can reveal where they live.
-  - Later, the point may be the user's current location or one picked on the map.
+- **Area**: the map holds the features of the municipalities chosen, up to about a prefecture, and a mapper looks at about 5 km of it in one sitting, zooming in to see the smaller features.
+  - The municipalities a developer picks are never hard-coded, in the repository or in anything published from it, because they can reveal where they live.
+  - Later, the user may have the map show their current location and move to it.
 - **Viewing**: on the local machine first, then published later.
 
 ## Non-goals
@@ -29,8 +29,7 @@ An old edit does not prove the data is wrong, so the map points at candidates, w
 
 - **Phase 01: Local map for one area**: on a developer's machine, a mapper can see which features in one chosen area have gone longest without an edit — [plan](plan/phase-01-local-map.md), in progress
 - **Vertex-aware freshness**: a feature whose shape was fixed counts as edited, which Local map for one area does not yet cover.
-- **Location**: the map centres on the current location or a picked point.
+- **Location**: the user can have the map show their current location and move to it.
 - **Publishing**: anyone can open the map for an area they choose, without a developer's machine.
 
-Local map for one area comes first, and Publishing follows Location, because until Location the only map is around a point a developer picked.
-The rest of the order is decided when Local map for one area ends.
+Local map for one area comes first, and the order of the rest is decided when it ends.
