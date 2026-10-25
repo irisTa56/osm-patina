@@ -38,6 +38,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
   - Zooms 14 to 16 of the 5 km square built in 0.39 seconds, zoom 16 holding all 108,074 features and zoom 14 39,689, where tippecanoe's held 74,381.
   - Zooms 10 to 16 of the box, with lines not joined (`--no-coalesce-lines`), built in 243 seconds into 625 MB, at a peak of 2.2 GB of memory.
     - 192 tiles at zooms 10 to 14 went over its limit of 500 KB and lost features until they fit; none at 15 or 16 did, and the largest zoom 16 tile was 149 KB (`tylertoo stats`).
+    - Its tiles came to 63 MB at zooms 10 to 13 against tippecanoe's 28 MB, 2.0 MB against 0.7 MB at zoom 10 alone, 259 MB at zooms 14 and 15 against 345 MB, and 304 MB at zoom 16 against 268 MB (`tylertoo stats` on both archives).
     - Its zoom 16 tiles, decoded and counted, held every one of the 5,616,809 objects.
   - From a hand-written file at zoom 16 alone, it kept a way of two nodes at one position and a closed one of four, both as lines, and dropped a square of about 1 cm on a side, which its report counted as collapsed when encoded rather than as dropped.
   - Its help for 0.8.0 says a tile over the limit drops features (`tylertoo tiles --help`), where [its documentation](https://geoparquet-io.github.io/tylertoo/OVERVIEW_TUNING/), which describes changes after 0.8.0, says the default merges the densest features of such a tile into a neighbour, which keeps its own id and attributes, and `--size-valve drop` drops them instead (read 2026-10-25).
@@ -52,7 +53,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 - The program then read each tool's archive of the box at zooms 10 to 16 over the same tour around Tokyo Station, zooms 13.6 to 17, two runs each, on a machine with about three quarters of its CPU idle (2026-10-25).
   - The 95th percentile between frames was 18.4 and 18.6 ms over tylertoo's tiles, and 17.4 and 18.8 ms over tippecanoe's.
   - The program built the 90 tiles the tour needed in 240 to 242 ms from tylertoo's and 346 to 348 ms from tippecanoe's, whose zoom 14 tiles hold more features.
-  - Picking at the centre found a different way in each archive, tylertoo's the one 0004's trial found over whole features; why was not looked at.
+  - Picking at the centre found a different way in each archive, two lines 2.3 and 2.1 m from the point, both within the trial's reach of 3.3 m; the trial picks the first line its tile holds, and tylertoo keeps the order of its input, which put the way 0004's trial found first, where tippecanoe put the other first (the decoded tiles, 2026-10-25).
   - The opening view of the whole box, at zoom 10, was not run.
 
 ## Decision
@@ -93,5 +94,5 @@ Adding municipalities builds the archive again over all of them, rather than bui
   - tylertoo has not been installed on CI's Linux runner, which CI would show by failing at install.
   - Building a prefecture's worth takes about five minutes, and every municipality added or every newer extract takes that again; writing GeoParquet and reading zoom 16 back to compare it with what was written add to that.
   - A denser area, or one with finer features, can lose more at zoom 16 than the trials did, which the report shows.
-  - The opening view at zoom 10 has not been drawn in a window, and tylertoo thins further out more than tippecanoe did, so how full it looks there is unknown.
+  - The opening view at zoom 10 has not been drawn in a window, where tylertoo's tiles hold nearly three times the bytes tippecanoe's did, so whether it opens and moves within the plan's R008 is unknown, as is how full it looks.
   - An archive is as old as the extract it was built from, which the window shows by the data's date.
