@@ -184,6 +184,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
     - Two of the municipalities share an edge, and one lies apart from them.
+    - A tagged way and a multipolygon relation have nodes in both municipalities that share the edge, and each comes out once.
+    - A tagged way has one node inside the area and one outside it, and comes out whole.
     - A boundary relation S1, with ways and nodes of its own, is a member of one municipality's relation and lies inside that municipality; a boundary relation S2 is a member of S1 and lies inside S1.
     - A tagged object lies inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1.
     - A tagged way has its two nodes at one position.
