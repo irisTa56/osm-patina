@@ -29,7 +29,7 @@ An old edit does not prove the data is wrong, so the map points at candidates, w
 
 - **Phase 01: Local map for one area**: on a developer's machine, a mapper can see which features in one chosen area have gone longest without an edit — [plan](plan/phase-01-local-map.md), in progress
 - **Vertex-aware freshness**: a feature whose shape was fixed counts as edited, which Local map for one area does not yet cover.
-- **Location**: the map shows the user's current location and moves to it when they ask, rather than opening there.
+- **Location**: the map shows the user's current location and moves to it when they ask.
 - **Publishing**: anyone can open the map for an area they choose, without a developer's machine.
 
 Local map for one area comes first, and the order of the rest is decided when it ends.
