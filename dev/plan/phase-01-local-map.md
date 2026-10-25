@@ -177,7 +177,7 @@ A mapper looking at the window sees which features have gone longest without one
   - finding which feature lies under a point, for the selection of R004,
   - and finding a font on the machine for the names of R010.
 - **A software rasterizer on CI's runner**, for tests only: what the test that renders the window draws with there (A012), installed by the CI job, such as Mesa's Vulkan driver.
-  - It is tried on CI first, since a test left to a developer's machine leaves CI no longer checking what the window draws, such as the features while the base map's service does not answer.
+  - It is tried on CI, as R009's best effort there, since a test left to a developer's machine alone leaves CI no longer checking what the window draws, such as the features while the base map's service does not answer.
 - **OpenFreeMap**: the base map's style and tiles, requested by the window while it is open.
 
 ## Done when

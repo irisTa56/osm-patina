@@ -20,7 +20,7 @@ Until a Rust crate assembles geometry, it leaves that step to osmium-tool ([0002
 
 ## Rejected alternatives
 
-- **Python with pyosmium**: it would be less code and one dependency fewer, since it reads and assembles in one process, but it gives up the three reasons above.
+- **Python with pyosmium**: it would be less code and one dependency fewer, since it reads and assembles in one process, but it gives up the preference for Rust and the openness to a Rust crate above.
 - **A shell pipeline with no program for this phase**: `osmium extract`, `osmium tags-filter`, and `osmium export` into a static page would draw the map, and the program would be written when a later phase needs one; but what this phase has the program do, dropping features outside the rectangle and reading its rules from a file, would be written once in shell and again in Rust.
 - **Elixir**: the three PBF parsers found for it have not been maintained since 2018.
 
@@ -29,4 +29,4 @@ Until a Rust crate assembles geometry, it leaves that step to osmium-tool ([0002
 - **Dependencies added**: the Rust toolchain.
 - **Risks**:
   - Geometry assembly stays outside the program for as long as no crate does it, so osmium-tool has to be installed wherever the program runs.
-  - Writing such a crate would be a project of its own, and until one exists the speed the choice was made for is bounded by the two osmium-tool processes, which took about 5 seconds for the largest area ([0002](0002-osmium-tool-selects-and-assembles.md)).
+  - Writing such a crate would be a project of its own, and until one exists the pipeline's speed is bounded by the two osmium-tool processes, which took about 5 seconds for the largest area ([0002](0002-osmium-tool-selects-and-assembles.md)).
