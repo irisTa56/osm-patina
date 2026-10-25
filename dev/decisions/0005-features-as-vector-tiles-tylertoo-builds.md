@@ -65,7 +65,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 ## Decision
 
 The area is the municipalities given, taken as the union of their boundaries in the extract, each without the boundaries inside it; osmium-tool cuts and exports it as 0002 says, writing each closed way once, as a line or an area by its tags; the program writes the features the rules admit as GeoParquet, and tylertoo builds them into one PMTiles archive in one run, which the window reads.
-The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view.
+The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view, by a preference for seeing the whole area in one view, and on the judgment, not checked against any source, that a mapper seldom looks for old features further out than that.
 Zoom 16 is the closest zoom it holds, the closest the trials over the box around Tokyo's mainland built: no tile there went over the size limit in either tool's build, where tiles at zooms 10 to 14 did; none at zoom 15 did either, so 15 might serve as the closest as well, which no build has tried.
 A closer zoom would hold the same features in about three times as many tiles for each zoom, as zoom 16 held of zoom 15's (21,990 against 6,922), where the window draws closer views by enlarging zoom 16's tiles, as 0004's trial did with zoom 14's; none was tried.
 Zoom 16 holds every feature, with no simplification there, but for any too small for a tile's grid to encode, which the report below shows; a closed way written once as such an area is then missing there whole.
@@ -87,7 +87,7 @@ Adding municipalities builds the archive again over all of them, rather than bui
 ## Rejected alternatives
 
 - **Every feature at zoom 14, with the tools' limits lifted**: the whole of a 5 km area would show every feature at once, but it holds every feature at the furthest zoom it draws, where tiles grow with the area's density, and thinning further out suits a map that is zoomed in on for the smaller features.
-- **A furthest zoom closer than 10, such as 12**: the archive would build faster and smaller, and its opening view would be lighter, but a prefecture's worth would no longer fit one view.
+- **A furthest zoom closer than 10, such as 12**: the archive would build faster and smaller, and its opening view would be lighter, but a prefecture's worth would no longer nearly fit one view.
 - **Thinning sparse and dense places alike**, as tippecanoe's `--drop-fraction-as-needed` or tylertoo's `--drop-gamma 1` does: a sparse place would lose features it has few of, where thinning dense places first takes them from where many remain.
 - **Keeping the largest of the features that compete, tylertoo's default**: the map zoomed out would keep its roads and larger areas, but an older feature could be hidden there behind a newer, larger one, which is what the map is for showing.
 - **Every feature kept at zoom 16**: a mapper zoomed in would never miss one, but tylertoo 0.8.0 offers no finer grid for a tile (`tylertoo tiles --help` names none), so it would take a closer zoom and about three times the tiles for each zoom added, for areas of 0.02 m² or less, under a pixel at zoom 16, where a pixel of a 256-pixel tile spans about 1.9 m at Tokyo's latitude, though walkers 0.63.0 lets the map zoom in to 26 (`src/zoom.rs`); the report names each such feature instead.
