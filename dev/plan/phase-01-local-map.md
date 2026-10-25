@@ -32,8 +32,9 @@ A mapper looking at the window sees which features have gone longest without one
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
-  - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date, and selecting it shows its date as unknown.
+  - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date.
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
+  - A version or a date the object lacks, as in an extract written without metadata, is shown as unknown.
   - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
   - Where the extract's header gives no date, the window says that the data's date is unknown, rather than give the file's own date, which is when the file was written, usually near the day it was downloaded, and tells little of how old the data is; the maintainer chose it (said 2026-10-25).
@@ -111,7 +112,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
 - **A013**: tippecanoe builds a prefecture's worth into an archive that holds every feature at zoom 16, within about ten minutes. Source: the trial of a box around Tokyo's mainland in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 612 seconds, with every zoom 16 tile under the 500 KB over which tippecanoe thins a whole zoom.
-  - The features at zoom 16 were not counted there, and with tippecanoe's defaults small areas and short lines are dropped at the deepest zoom, as 6 of the stand-in square's were when zoom 14 was the deepest (2026-10-15); which options keep them is left to building.
+  - The features at zoom 16 were not counted there, and with tippecanoe's defaults small areas and short lines are dropped at the deepest zoom, which finer options keep (0005); which options to use is left to building.
   - Risk: zoom 16 lacks some, or the options that keep them make the build miss R008's time, noticed by the build command's report (R002) and by the scale check.
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
@@ -197,7 +198,8 @@ A mapper looking at the window sees which features have gone longest without one
   - Selecting where a point or a line lies over an area selects the point or the line.
   - The window states the date of the data.
   - Built from an extract whose header gives no date, the window says that the data's date is unknown.
-  - A feature whose object has no `timestamp` is drawn grey, the legend gives grey as an unknown date, and selecting it shows its date as unknown.
+  - A feature whose object has no `timestamp` is drawn grey, and the legend gives grey as an unknown date.
+  - Selecting a feature whose object has no `version` or `timestamp` shows each it lacks as unknown.
   - The credit to OpenStreetMap is in a corner with its link, before and after panning.
   - While the base map's service does not answer, the features are still drawn.
   - Given no font for Japanese, the window still opens, and says that some names cannot be drawn.
@@ -219,8 +221,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
-  - The build reports no feature missing from zoom 16 (R002).
-    - The maintainer chose this over accepting a bounded share missing (said 2026-10-24).
+  - The build reports no feature missing from zoom 16 (R002, [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
   - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.

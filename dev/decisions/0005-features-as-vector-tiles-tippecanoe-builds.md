@@ -19,6 +19,8 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
   - [`elivagar`](https://github.com/folknor/elivagar) builds a base map's layers from PBF in a schema of its own.
 - Trials with tippecanoe 2.79.0, which mise's conda backend installed on macOS arm64, on an Apple M3:
   - From the 108,074 features of the 5 km square around Tokyo Station, 37 MB of GeoJSON, zooms 14 to 16 with no simplification at the deepest zoom (`-pS`) built in 3.0 seconds into 7.0 MB; zoom 16 held all 108,074, zoom 15 84,040, and zoom 14 74,381 (2026-10-16).
+    - Built with zoom 14 as the deepest, 6 of them were missing there, four small areas and two lines of two points; tippecanoe's README says it reduces tiny polygons at every zoom, the deepest included, unless told not to (read 2026-10-25), and lines finer than a tile's grid collapse (2026-10-15).
+  - At zoom 16 alone, squares of 1 cm to 1 m on a side near Tokyo Station: the defaults and `-pS` kept those of 0.5 m and more; adding no tiny-polygon reduction (`-pt`) kept 0.2 m and more; adding a detail of 16 as well (`-d16`, a tile of 65,536 units rather than 4,096) kept every one (2026-10-25).
   - From a box around Tokyo's mainland cut out of the Kanto extract, every tagged object with no scope rules applied, 9,683,164 features in 3.5 GB of GeoJSON, zooms 10 to 16 with `-pS` failed after 232 seconds, the further zooms' tiles being too large; with `--drop-densest-as-needed` added, which thins a whole zoom where any of its tiles goes over tippecanoe's limit of 500 KB, it built in 612 seconds into 611 MB (2026-10-24).
     - The largest tile was 333 KB at zoom 10, 447 KB at zoom 13, 463 KB at zoom 14, 296 KB at zoom 15, and 137 KB at zoom 16, every tile at the default extent of 4,096.
     - No zoom 16 tile was near the limit, so nothing was thinned there for size; the features at zoom 16 were not counted.
@@ -55,6 +57,7 @@ Adding municipalities builds the archive again over all of them, rather than bui
 - **Building each municipality's archive alone and joining them with `tile-join`**: adding a municipality would build only that one, but a feature crossing a boundary is in both cuts, so each feature would need a rule for which municipality owns it; the thinning further out would differ on either side of a boundary; and a newer extract rebuilds every municipality anyway to bring the dates up; the maintainer agreed to building again (said 2026-10-24).
 - **A rectangle of up to 5 km around a chosen point, built and opened one at a time**: each build is quick, but the map holds one rectangle, and growing it brings back the overlap of the previous alternative.
 - **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view; offered the tiles and the layer built from the export, the maintainer chose the tiles (said 2026-10-15).
+- **A bounded share of features missing at zoom 16**: tippecanoe's defaults could stay, with zoom 16's tiles at their default size, but a feature could be missing where the map is meant to show every one; the maintainer chose none missing (said 2026-10-24).
 - **Building the tiles in Rust**: it would keep the tools to Rust, but cutting at a tile's edge, thinning, and encoding vector tiles would be the program's own work, which tippecanoe already does, and no Rust tool found takes the features as they are.
 
 ## Consequences
@@ -63,4 +66,5 @@ Adding municipalities builds the archive again over all of them, rather than bui
 - **Risks**:
   - conda-forge's build of tippecanoe on Linux has not been installed, which CI would show by failing at install.
   - Building a prefecture's worth takes about ten minutes, and every municipality added or every newer extract takes that again; reading zoom 16 back to compare it with what was written adds to that.
+  - The options that keep zoom 16 whole, such as a finer detail there, make its tiles larger and the build longer, by how much not measured over a prefecture; a tile pushed over the 500 KB limit thins its whole zoom, which the report would show.
   - An archive is as old as the extract it was built from, which the window shows by the data's date.
