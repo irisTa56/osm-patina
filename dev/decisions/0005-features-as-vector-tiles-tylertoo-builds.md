@@ -104,7 +104,7 @@ Adding municipalities builds the archive again over all of them, rather than bui
   - tylertoo has not been installed on CI's Linux runner, which CI would show by failing at install.
   - No crate has been tried writing GeoParquet that tylertoo reads, where the trial wrote it with DuckDB; without one, DuckDB would run as another program.
   - At about zoom 14, where a 5 km view sits, tylertoo's tiles held fewer features than tippecanoe's, 39,689 of the 5 km square's 108,074 against 74,381, so more of them show only once the map is zoomed in.
-  - How the map looks further out with the oldest preferred has not been seen: it can keep a small old feature in place of a road or a larger area, and in dense places, where tiles went over the size limit, an old feature can still be missing.
+  - How the map looks further out with the oldest preferred has not been seen: it can keep a small old feature in place of a road or a larger area, and wherever a zoom is thinned, an old feature can still be missing while a newer one elsewhere stays.
   - Building a prefecture's worth takes about five minutes, and every municipality added or every newer extract takes that again; writing GeoParquet and reading zoom 16 back to compare it with what was written add to that.
   - A denser area, or one with finer features, can lose more at zoom 16 than the trials did, which the report shows.
   - The opening view at zoom 10 has not been drawn in a window, where tylertoo's tiles hold nearly three times the bytes tippecanoe's did, so whether it opens and moves within the plan's R008 is unknown, as is how full it looks.

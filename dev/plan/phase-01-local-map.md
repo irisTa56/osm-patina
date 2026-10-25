@@ -196,12 +196,12 @@ A mapper looking at the window sees which features have gone longest without one
       - a tagged way with one node inside the area and one outside it, coming out whole;
       - a boundary relation S1, with ways and nodes of its own, that is a member of one municipality's relation and lies inside that municipality, and a boundary relation S2 that is a member of S1 and lies inside S1, with a tagged object inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1;
       - a closed way tagged as a line, one tagged as an area, one with tags of both, such as a fence around a field, and one with tags of neither, such as a part of a building, each coming out once;
-      - two lines of the same kind that touch end to end;
+      - two lines of the same kind that touch end to end, long enough that joined they would reach more than a pixel past either at the zooms checked;
       - a tagged way with its two nodes at one position;
       - an area of about 1 cm on a side;
       - and a node, a way, and a multipolygon relation written without a version or a timestamp.
     - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the area of about 1 cm for as long as tylertoo drops it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
-    - At every zoom further out than 16, it finds each feature the touching lines' tiles hold carrying one object's id and lying within a pixel of that zoom of that object; and it builds the extract again with a size limit small enough that a tile further out goes over it, and finds the same of each feature that tile holds.
+    - At every zoom further out than 16, it finds each feature the touching lines' tiles hold carrying one object's id and lying within a pixel of that zoom of that object; and it builds the extract again with a size limit small enough that a tile further out goes over it, confirms from the build's report that one did, and finds the same of each feature that tile holds.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
