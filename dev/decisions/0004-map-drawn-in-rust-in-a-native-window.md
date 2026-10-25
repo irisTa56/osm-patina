@@ -17,7 +17,7 @@ A trial below showed that it is possible, and asked then to choose between the t
   - The features were a layer of tiles the program built from osmium-tool's export, 30 of them in 66 to 68 ms.
   - While the map zoomed and moved by itself, frames came at the display's 60 a second, with the 95th percentile between frames at 17.3 to 17.9 ms.
   - The base map's names were drawn above the features.
-  - A second trial drew the same features, read from a PMTiles archive, as the same kind of layer, at the same rate ([0005](0005-features-as-vector-tiles-tippecanoe-builds.md)).
+  - A second trial drew the same features, read from a PMTiles archive, as the same kind of layer, at the same rate ([0005](0005-features-as-vector-tiles-tylertoo-builds.md)).
 - walkers 0.61.0 evaluates no `concat` (`src/expression.rs`, read 2026-10-14), which `positron` and walkers' own bundled `openfreemap_bright` use to label everything that has a name in a non-Latin script, so that gets no label.
   - With that expression replaced by the name in its own script and a font with Japanese glyphs added, the trial drew the names in Japanese, and frames kept to the same rate.
 - MapLibre GL JS can be called from Rust compiled to WebAssembly with no JavaScript in the commits (a trial with wasm-bindgen 0.2.129 and trunk 0.21.14 in Chromium on macOS, 2026-10-13): the library's map was declared in Rust, and trunk wrote the script that loads the WebAssembly.
@@ -27,7 +27,7 @@ A trial below showed that it is possible, and asked then to choose between the t
 ## Decision
 
 The program draws the map itself, in a native window built with eframe and egui, as qol-reweight does.
-walkers draws the base map, and draws the features as a layer of tiles the program builds from the archive of [0005](0005-features-as-vector-tiles-tippecanoe-builds.md), under the base map's names.
+walkers draws the base map, and draws the features as a layer of tiles the program builds from the archive of [0005](0005-features-as-vector-tiles-tylertoo-builds.md), under the base map's names.
 The map is drawn in no page and no browser, and nothing the program runs is JavaScript; a link it shows opens in the user's own browser.
 
 ## Rejected alternatives

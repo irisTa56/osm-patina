@@ -10,18 +10,19 @@ A mapper looking at the window sees which features have gone longest without one
 
 ## Requirements & Constraints
 
-- **R001**: Given a regional extract on disk and a file listing one or more municipalities, each by name or by the id of its boundary relation in OSM, one command builds the map of their area as an archive of vector tiles, and given that archive, another command opens a window showing its whole area ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+- **R001**: Given a regional extract on disk and a file listing one or more municipalities, each by name or by the id of its boundary relation in OSM, one command builds the map of their area as an archive of vector tiles, and given that archive, another command opens a window showing its whole area ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
   - A list with no municipality, or with one the extract does not hold, is refused, with a message that says so.
   - A name that matches several boundaries in the extract, such as a ward name several cities share, is refused, with the ids of the boundaries it matches.
   - Municipalities whose boundaries overlap, such as a city given with one of its own wards, are refused, with a message that says which.
   - The area is the union of the municipalities' boundaries, whether or not they touch.
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality is adding it to the file and building the archive again over all of them; the program keeps no list of its own.
-- **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tippecanoe drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - With tippecanoe's defaults, areas too small and lines too short to draw at zoom 16 are dropped there (A013); which options to build with is left to building.
+- **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tylertoo drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
+  - A closed way is one feature, drawn as a line or as an area by its tags, not as both.
+  - tylertoo drops at zoom 16 an area too small for a tile's grid to encode (A013); which options to build with is left to building.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports the type and id of any that zoom 16 lacks.
-  - Further out than zoom 16, tippecanoe thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
-  - A small area tippecanoe draws there as a square larger than itself is still its own object, selected and coloured as that object.
+  - Further out than zoom 16, tylertoo thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
+  - A feature drawn further out is never joined with another, so what is drawn there is selected and coloured as the one object it was built from.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
     - A relation of any other type is not a feature.
@@ -80,18 +81,19 @@ A mapper looking at the window sees which features have gone longest without one
   - The square around Tokyo Station held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
   - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: an area denser than the square around Tokyo Station, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since the maintainer chose not to hold such an area to R008 (said 2026-10-14); noticed by the map lagging when one is opened.
-- **A004**: walkers draws the features around Tokyo Station within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), the 108,074 features of the 5 km square around it over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from a zoom 14 archive on 2026-10-15.
+- **A004**: walkers draws the features around Tokyo Station within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md), the 108,074 features of the 5 km square around it over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from a zoom 14 archive on 2026-10-15.
   - The 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
   - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
   - From the archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
-  - Not measured: the window over an archive as 0005 decides it, with tiles to zoom 16 and thinned further out; and A003's denser square.
-  - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 14, which run up to 463 KB where zoom 16's stay under 137 KB ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), miss R008, noticed by the scale check.
+  - Not measured: the window over the opening view of such an archive, at zoom 10; and A003's denser square.
+  - Over archives of zooms 10 to 16 of the box around Tokyo's mainland, the 95th percentile was 17.4 to 18.8 ms around Tokyo Station, on a machine with about three quarters of its CPU idle, 2026-10-25 ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
+  - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 14, which run up to 383 KB where zoom 16's stay under 150 KB in tylertoo's archive (0005), miss R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
   - Risk: another extract lacks it, and the window says the data's date is unknown (R005), noticed by `osmium fileinfo` printing no replication timestamp.
 - **A006**: mise's conda backend installs osmium-tool on CI's Linux runner as it does on macOS arm64. Unverified on Linux; [conda-forge](https://anaconda.org/conda-forge/osmium-tool) lists a `linux-64` build (checked 2026-10-03).
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
-- **A007**: Cutting a prefecture's worth out of an extract of about 500 MB takes seconds, and exporting it under a minute. Source: a box around Tokyo's mainland cut out of the Kanto extract, 7.5 seconds to cut and 45 seconds to export 9,683,164 features with no scope rules applied, osmium on an Apple M3, 2026-10-24 ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+- **A007**: Cutting a prefecture's worth out of an extract of about 500 MB takes seconds, and exporting it under a minute. Source: a box around Tokyo's mainland cut out of the Kanto extract, 7.5 seconds to cut and 45 seconds to export 9,683,164 features with no scope rules applied, the 5,616,809 objects with each tagged closed way written twice, osmium on an Apple M3, 2026-10-24 ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
   - The cut reads the whole extract, so its time grows with the extract, and the export's with the area.
     - A larger extract has not been timed.
   - Risk: every build from an extract of several GB keeps a developer waiting, noticed by timing one.
@@ -112,17 +114,17 @@ A mapper looking at the window sees which features have gone longest without one
   - The [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists no Mesa, Vulkan driver, or software rasterizer among its packages (image 20261004.327.1, read 2026-10-14), so CI has to install one.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
-- **A013**: tippecanoe builds a prefecture's worth into an archive at zoom 10 to 16 within about ten minutes, and what it drops at zoom 16 is too small to draw there. Source: the trial of a box around Tokyo's mainland in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 612 seconds, with every zoom 16 tile under the 500 KB over which tippecanoe thins a whole zoom.
-  - The features at zoom 16 were not counted there; the 5 km square around Tokyo Station lost none at zoom 16 (0005).
-  - Risk: zoom 16 lacks features a mapper would look for, noticed by the build command's report (R002) at the scale check; the options 0005 found to keep small areas and short lines are then tried.
-- **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
+- **A013**: tylertoo builds a prefecture's worth into an archive at zoom 10 to 16 within about five minutes, and zoom 16 holds every feature but an area too small for a tile's grid. Source: the trials in [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md), 243 seconds for a box around Tokyo's mainland, whose zoom 16 held all of its 5,616,809 objects, and a square of about 1 cm on a side dropped at zoom 16 from a hand-written file.
+  - Risk: zoom 16 lacks features a mapper would look for, noticed by the build command's report (R002) at the scale check; tylertoo's options are then looked at for one that keeps them.
+- **A014**: tylertoo installs on CI's Linux runner as it does on macOS arm64. Source: `cargo install --locked` built 0.8.0 on macOS arm64, with `protoc` (2026-10-25), and its releases attach built binaries for Linux (0005). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
-- **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
+- **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md).
   - A tile holds each area cut at its edge, so the archive carries each area's whole size, which R004's rule ranks by.
   - Risk: selecting in a tile denser than those around Tokyo Station takes long enough to notice, noticed when selecting there.
-- **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3 for a box around Tokyo's mainland, 7.5 seconds to cut, 45 seconds to export, and 612 seconds for the tiles (A007, A013), with no scope rules applied, which would leave fewer features.
-  - Not measured: taking the municipalities' boundaries out of the extract, keeping the features the rules admit, writing what tippecanoe reads, reading zoom 16 back to compare it with what was written (R002), and the whole command in one run.
-  - Risk: those parts take more than the 4 minutes or so left, noticed by the scale check.
+- **A016**: The command that builds the archive keeps to R008's time. Source: its parts as measured on an Apple M3 for a box around Tokyo's mainland, 7.5 seconds to cut, 45 seconds to export, and 243 seconds for the tiles (A007, A013), with no scope rules applied and each tagged closed way written twice, either of which would leave fewer features.
+  - DuckDB took 25.7 seconds to turn that export into GeoParquet (0005).
+  - Not measured: taking the municipalities' boundaries out of the extract, keeping the features the rules admit, the program writing the GeoParquet tylertoo reads, reading zoom 16 back to compare it with what was written (R002), and the whole command in one run.
+  - Risk: those parts take more than the 10 minutes or so left, noticed by the scale check.
 - **A017**: The municipalities' boundaries can be taken from the extract and given to `osmium extract` as one area. Source: its manual says a file of several (multi)polygons is cut as one area if they do not overlap (read 2026-10-24), and distinct municipalities do not, R001 refusing those that do; and two wards of Tokyo that share an edge, cut from the Kanto extract by both boundaries alone, without their sub-boundaries, in one file with osmium 1.19.1, held exactly the objects of the two wards cut one at a time, those reaching across the edge once (2026-10-25).
   - Not tried: municipalities apart from each other.
   - Risk: features of a municipality apart from the others are lost, noticed by the end-to-end test.
@@ -135,9 +137,9 @@ A mapper looking at the window sees which features have gone longest without one
 - [0002. osmium-tool selects the area and assembles geometry](../decisions/0002-osmium-tool-selects-and-assembles.md)
 - [0003. The program is written in Rust](../decisions/0003-rust-for-the-program.md)
 - [0004. The map is drawn in Rust, in a native window](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)
-- [0005. The features reach the window as vector tiles that tippecanoe builds](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)
-- The Rust toolchain, osmium-tool, and tippecanoe at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
-  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13), and for tippecanoe (said 2026-10-15).
+- [0005. The features reach the window as vector tiles that tylertoo builds](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)
+- The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
+  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13), and for tylertoo (said 2026-10-25).
 - One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - Municipalities, by name or by the id of their boundary relation, rather than a centre point and a size, because the map is meant to grow by the municipalities added, up to about a prefecture.
@@ -163,13 +165,13 @@ A mapper looking at the window sees which features have gone longest without one
 ## Dependencies
 
 - **osmium-tool**: taking the municipalities' boundaries, selecting the area, and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), declared in `mise.toml` at its latest release, which was 1.19.1 on 2026-10-13, and installed by `mise install` through the conda backend.
-- **tippecanoe**: building the area's features into a PMTiles archive ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)), declared in `mise.toml` at its latest release, which was 2.79.0 on 2026-10-15, and installed by `mise install` through the conda backend.
+- **tylertoo**: building the area's features into a PMTiles archive ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)), declared in `mise.toml` at its latest release, which was 0.8.0 on 2026-10-25, and installed by `mise install`.
 - **Rust toolchain**: building and testing the program, declared in `mise.toml` at its latest release.
 - **eframe 0.36 with egui and eframe's wgpu backend, on by default in 0.36.2, and walkers 0.61 with its `mvt` feature**: the window, and the map in it ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)).
-- **The `pmtiles` and `mvt-reader` crates, at the releases walkers 0.61 depends on**: reading the archive's tiles ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+- **The `pmtiles` and `mvt-reader` crates, at the releases walkers 0.61 depends on**: reading the archive's tiles ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
 - **Other Rust crates** the program itself depends on, chosen while building, for these purposes only, with crates that only its tests use left to the building session:
   - parsing the commands' arguments,
-  - reading osmium-tool's export and the rules of R011, and writing what tippecanoe reads,
+  - reading osmium-tool's export and the rules of R011, and writing the GeoParquet tylertoo reads,
   - finding which feature lies under a point, for the selection of R004,
   - and finding a font on the machine for the names of R010.
 - **A software rasterizer on CI's runner**, for tests only: what the test that renders the window draws with there (A012), installed by the CI job, such as Mesa's Vulkan driver.
@@ -189,9 +191,11 @@ A mapper looking at the window sees which features have gone longest without one
       - a tagged way and a multipolygon relation with nodes in both municipalities that share the edge, each coming out once;
       - a tagged way with one node inside the area and one outside it, coming out whole;
       - a boundary relation S1, with ways and nodes of its own, that is a member of one municipality's relation and lies inside that municipality, and a boundary relation S2 that is a member of S1 and lies inside S1, with a tagged object inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1;
+      - a closed way tagged as a line and one tagged as an area, each coming out once;
       - a tagged way with its two nodes at one position;
+      - an area of about 1 cm on a side;
       - and a node, a way, and a multipolygon relation written without a version or a timestamp.
-    - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the way of two nodes at one position for as long as tippecanoe writes nothing for it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
+    - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the area of about 1 cm for as long as tylertoo drops it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
@@ -231,7 +235,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
-  - The features the build reports missing from zoom 16 are counted by type and recorded by id (R002), and before the phase closes the maintainer reads them and either accepts them or has 0005's options tried (A013).
+  - The features the build reports missing from zoom 16 are counted by type and recorded by id (R002), and before the phase closes the maintainer reads them and either accepts them or has tylertoo's options looked at for one that keeps them (A013).
   - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.
@@ -244,7 +248,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **CI passes with the program's automated checks among its jobs** — verifies R009, A006, A011, A012, A014.
   - The Rust checks and the end-to-end test pass there.
   - The tests of the window pass there as well, or on a developer's machine alone where running them in CI proves not to work.
-  - Check: the pull request's CI run, on a runner that installed osmium-tool and tippecanoe through `mise install`, and for tests left to a developer's machine, a run of them there.
+  - Check: the pull request's CI run, on a runner that installed osmium-tool and tylertoo through `mise install`, and for tests left to a developer's machine, a run of them there.
 
 ## Open questions
 
