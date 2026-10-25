@@ -72,9 +72,9 @@ Further out, tylertoo thins the features as its help for 0.8.0 describes, in the
 - it keeps fewer features for each zoom out, protecting sparse places, so dense places thin first;
 - and it drops features from a tile over 500 KB until the tile fits.
 
-Where features compete for a cell or for a zoom's count, the one whose last edit is oldest is kept first, so that the features longest without an edit stay in view further out, where tylertoo would otherwise keep the largest ([its documentation](https://geoparquet-io.github.io/tylertoo/OVERVIEW_TUNING/), read 2026-10-25); the program gives tylertoo a `--sort-key` column that grows with the age of the last edit, since the larger value won a cell in the trial.
+Where features compete for one cell of that grid, the one whose last edit is oldest is kept, so that a feature long without an edit stays in view further out in place of the largest, which tylertoo would otherwise keep ([its documentation](https://geoparquet-io.github.io/tylertoo/OVERVIEW_TUNING/), read 2026-10-25); the program gives tylertoo a `--sort-key` column that grows with the age of the last edit, since the larger value won a cell in the trial.
 A feature with no date gets no value there, so that it loses every cell it contests to a feature with one (`tylertoo-core` 0.8.0's `src/overview/convert.rs`, read 2026-10-25), since an unknown date is not known to be old.
-A tile over the size limit keeps the features of most coordinates whatever that column, so the program writes the features oldest first, which in the trial decided among features of as many coordinates.
+The rest of the thinning does not keep the oldest: which features a zoom keeps follows tylertoo's protection of sparse places, and a tile over the size limit keeps the features of most coordinates (0.8.0's source).
 
 Each feature drawn at any zoom is one object, coloured by its own date: lines are not joined (`--no-coalesce-lines`), which would make touching lines one stroke further out, and a tile over the size limit loses features rather than merging them into a neighbour, as 0.8.0 does and as `--size-valve drop` keeps for a release that merges by default.
 The command that builds the archive compares the features it wrote with those zoom 16 holds and reports any that zoom 16 lacks, since tylertoo's report counts the features that collapse when encoded without naming them.
@@ -102,8 +102,8 @@ Adding municipalities builds the archive again over all of them, rather than bui
   - tylertoo has not been installed on CI's Linux runner, which CI would show by failing at install.
   - No crate has been tried writing GeoParquet that tylertoo reads, where the trial wrote it with DuckDB; without one, DuckDB would run as another program.
   - At about zoom 14, where a 5 km view sits, tylertoo's tiles held fewer features than tippecanoe's, 39,689 of the 5 km square's 108,074 against 74,381, so more of them show only once the map is zoomed in.
-  - Keeping the oldest first was tried on hand-written files alone, and further out it can keep a small old feature in place of a road or a larger area, which has not been looked at.
-  - A full tile, as 192 tiles at zooms 10 to 14 of the box around Tokyo's mainland were, keeps the features of most coordinates, so in the densest places an old feature of few coordinates can be missing further out; a release can change what such a tile keeps, as its documentation describes for one after 0.8.0.
+  - Keeping the oldest of a cell was tried on hand-written files alone, and further out it can keep a small old feature in place of a road or a larger area, which has not been looked at.
+  - A zoom's count and a full tile, as 192 tiles at zooms 10 to 14 of the box around Tokyo's mainland were, keep features by density and coordinates rather than age, so in dense places an old feature can be missing further out; a release can change either, as tylertoo's documentation describes for one after 0.8.0.
   - Building a prefecture's worth takes about five minutes, and every municipality added or every newer extract takes that again; writing GeoParquet and reading zoom 16 back to compare it with what was written add to that.
   - A denser area, or one with finer features, can lose more at zoom 16 than the trials did, which the report shows.
   - The opening view at zoom 10 has not been drawn in a window, where tylertoo's tiles hold nearly three times the bytes tippecanoe's did, so whether it opens and moves within the plan's R008 is unknown, as is how full it looks.

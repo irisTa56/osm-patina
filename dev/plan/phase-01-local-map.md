@@ -22,8 +22,8 @@ A mapper looking at the window sees which features have gone longest without one
   - tylertoo drops at zoom 16 an area too small for a tile's grid to encode (A013); which options to build with is left to building.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports the type and id of any that zoom 16 lacks.
   - Further out than zoom 16, tylertoo thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
-    - Of the features that compete for a place in tylertoo's thinning there, the one whose last edit is oldest is kept first, but for a tile over the size limit, which keeps the features of most coordinates (0005, A019).
-    - A feature with no date loses there to one with a date, since an unknown date is not known to be old.
+    - Of the features that compete for one cell of tylertoo's grid there, the one whose last edit is oldest is kept (0005, A019); the rest of its thinning does not look at age, so in dense places an old feature can be missing there.
+    - A feature with no date loses such a cell to one with a date, since an unknown date is not known to be old.
   - A feature drawn further out is never joined with another, so what is drawn there is selected and coloured as the one object it was built from.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
@@ -136,9 +136,9 @@ A mapper looking at the window sees which features have gone longest without one
   - Risk: a municipality whose boundary reaches past the extract's edge comes out incomplete, noticed by the command refusing it or by features missing near that edge.
 - **A018**: A Rust crate writes GeoParquet that tylertoo reads, with each feature's type, id, version, and timestamp. Unverified: the trial wrote it with DuckDB ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)), and no crate was tried.
   - Risk: none writes what tylertoo reads, noticed by the end-to-end test failing to build; DuckDB, run as another program as the trial ran it, is then the way out.
-- **A019**: tylertoo keeps the oldest of the features that compete for a cell or a zoom's count further out when given a `--sort-key` column that grows with the age of the last edit. Source: two points through tylertoo 0.8.0, where the larger value won a cell in either input order ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
+- **A019**: tylertoo keeps the oldest of the features that compete for one cell further out when given a `--sort-key` column that grows with the age of the last edit. Source: two points through tylertoo 0.8.0, where the larger value won a cell in either input order ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
   - A feature given no value, as one with no date is, loses every cell it contests to a feature with one, by 0.8.0's source (0005).
-  - A tile over the size limit keeps the features of most coordinates instead, by 0.8.0's source, the order the input gives breaking ties among squares of five coordinates in the trial (0005).
+  - A zoom's count and a tile over the size limit do not follow the column: the count protects sparse places first, and a full tile keeps the features of most coordinates (0005).
   - Not tried: lines and areas competing for a cell, and a real area.
   - Risk: a release of tylertoo ranks otherwise, as its documentation describes for one after 0.8.0, noticed by the end-to-end test.
 
