@@ -29,7 +29,7 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature is in the area when one of its nodes is, and it is then drawn whole, past the area's edge.
     - One with every node outside is not drawn.
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
-  - A feature osmium-tool does not produce for the area is not drawn, by a preference for drawing what osmium-tool produces over recovering in this phase what it leaves out.
+  - A feature osmium-tool does not produce for the area is not drawn, by a preference for drawing what osmium-tool produces over recovering in this phase what it leaves out, on the judgment, not checked against any source, that features missing along the area's edge change little of what a mapper looks for.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
     - Completing boundary relations would bring in every member of each, and its manual warns that boundary relations "can be huge" ([`osmium extract`](https://docs.osmcode.org/osmium/latest/osmium-extract.html), read 2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
@@ -150,7 +150,7 @@ A mapper looking at the window sees which features have gone longest without one
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
   - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features (checked 2026-10-03).
   - A Protomaps archive is a file the developer downloads, cut with `pmtiles extract` from a planet build of about 120 GB, and keeps up to date, where OpenFreeMap's tiles are requested as the window needs them ([its downloads page](https://docs.protomaps.com/basemaps/downloads), read 2026-10-15).
-- Names in their own script rather than in Latin script alone, by a preference for names as they are written where the mapper is, which in Japan is Japanese, and a font for it is on the developer's macOS (A010).
+- Names in their own script rather than in Latin script alone, by a preference for names as they are written where the mapper is, which in Japan is Japanese, on the judgment, not checked against any source, that a mapper in Japan reads names most easily in Japanese, and a font for it is on the developer's macOS (A010).
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
   - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
   - Which keys stand for each of the scope's kinds of feature is settled while building.
