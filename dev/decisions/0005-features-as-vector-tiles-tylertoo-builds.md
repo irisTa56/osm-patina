@@ -71,7 +71,7 @@ Further out, tylertoo thins the features as its help for 0.8.0 describes, in the
 - and it drops features from a tile over 500 KB until the tile fits.
 
 Where features compete for a cell or for a zoom's count, the one whose last edit is oldest is kept first, so that the features longest without an edit stay in view further out, where tylertoo would otherwise keep the largest ([its documentation](https://geoparquet-io.github.io/tylertoo/OVERVIEW_TUNING/), read 2026-10-25); tylertoo ranks them by a numeric column given as `--sort-key`, and which end of it wins is left to building.
-A tile over the size limit still keeps its largest features first, whatever that ranking, as the same documentation says.
+A tile over the size limit chooses what it keeps by size, whatever that ranking ("Sorting is independent of the oversized-tile valve"), and 0.8.0's documentation says in one place that the largest survive first and in another that the largest are dropped first ([its `OVERVIEW_TUNING.md` at v0.8.0](https://github.com/geoparquet-io/tylertoo/blob/v0.8.0/docs/OVERVIEW_TUNING.md), read 2026-10-25), so which it keeps there is unknown.
 
 Each feature drawn at any zoom is one object, coloured by its own date: lines are not joined (`--no-coalesce-lines`), which would make touching lines one stroke further out, and a tile over the size limit loses features rather than merging them into a neighbour, as 0.8.0 does and as `--size-valve drop` keeps for a release that merges by default.
 The command that builds the archive compares the features it wrote with those zoom 16 holds and reports any that zoom 16 lacks, since tylertoo's report counts the features that collapse when encoded without naming them.
@@ -100,7 +100,7 @@ Adding municipalities builds the archive again over all of them, rather than bui
   - No crate has been tried writing GeoParquet that tylertoo reads, where the trial wrote it with DuckDB; without one, DuckDB would run as another program.
   - At about zoom 14, where a 5 km view sits, tylertoo's tiles held fewer features than tippecanoe's, 39,689 of the 5 km square's 108,074 against 74,381, so more of them show only once the map is zoomed in.
   - Keeping the oldest first has not been built or looked at, and further out it can keep a small old feature in place of a road or a larger area.
-  - A tile over the size limit, as 192 tiles at zooms 10 to 14 of the box around Tokyo's mainland were, keeps its largest features rather than its oldest, so in the densest places an old, small feature can be missing further out.
+  - A tile over the size limit, as 192 tiles at zooms 10 to 14 of the box around Tokyo's mainland were, keeps features by size rather than age, so in the densest places an old feature can be missing further out.
   - Building a prefecture's worth takes about five minutes, and every municipality added or every newer extract takes that again; writing GeoParquet and reading zoom 16 back to compare it with what was written add to that.
   - A denser area, or one with finer features, can lose more at zoom 16 than the trials did, which the report shows.
   - The opening view at zoom 10 has not been drawn in a window, where tylertoo's tiles hold nearly three times the bytes tippecanoe's did, so whether it opens and moves within the plan's R008 is unknown, as is how full it looks.

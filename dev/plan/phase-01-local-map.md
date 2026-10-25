@@ -22,7 +22,7 @@ A mapper looking at the window sees which features have gone longest without one
   - tylertoo drops at zoom 16 an area too small for a tile's grid to encode (A013); which options to build with is left to building.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports the type and id of any that zoom 16 lacks.
   - Further out than zoom 16, tylertoo thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
-    - Of the features that compete for a place in tylertoo's thinning there, the one whose last edit is oldest is kept first, but for a tile over the size limit, which keeps its largest (0005).
+    - Of the features that compete for a place in tylertoo's thinning there, the one whose last edit is oldest is kept first, but for a tile over the size limit, which keeps features by size rather than age (0005).
   - A feature drawn further out is never joined with another, so what is drawn there is selected and coloured as the one object it was built from.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
@@ -49,7 +49,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R008**: At the stand-in area, on a developer's machine, with the window at 1,280 by 800 points, the commands and the window keep to these times:
   - The archive is built within 15 minutes of its command starting, from an extract of about 500 MB.
   - Within 1 second of the other command starting, the window shows the features of its opening view.
-  - While the map is panned and zoomed, the interval between frames is within 20 ms at the 95th percentile, both over the opening view of the whole area and around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square.
+  - While the map is panned and zoomed, the interval between frames is within 20 ms at the 95th percentile, both over the opening view of the whole area and around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square, as osmium-tool's export counts them with each tagged closed way twice (A003).
     - The maintainer chose to hold the opening view to it, where the further zooms' tiles are the largest (said 2026-10-24).
 - **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)) and draws the map itself, in no page or browser and with no JavaScript ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)), and its automated checks run in `mise run pre-commit` and in CI.
   - The tests that drive the window are meant to run in CI as well, and where that proves not to work, the maintainer accepts running them on a developer's machine alone (said 2026-10-11 of tests that drove a page, and carried over to the window on 2026-10-14).
@@ -80,7 +80,7 @@ A mapper looking at the window sees which features have gone longest without one
   - A node, a way, a closed way, or a multipolygon relation without a version or a timestamp comes out with 0 for it (a run on a hand-written file, 2026-10-25), and since OSM's versions start at 1 and its timestamps fall after 2004, the program takes 0 as unknown (R003, R004).
   - Risk: the map has no number to colour by, noticed by the end-to-end test.
 - **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the square around Tokyo Station, which R008's interval between frames is stated for. Source: counts of the four squares.
-  - The square around Tokyo Station held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
+  - The square around Tokyo Station held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut, with no config, which writes each tagged closed way twice, [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
   - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
   - Risk: an area denser than the square around Tokyo Station, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since the maintainer chose not to hold such an area to R008 (said 2026-10-14); noticed by the map lagging when one is opened.
 - **A004**: walkers draws the features around Tokyo Station within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md), the 108,074 features of the 5 km square around it over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from a zoom 14 archive on 2026-10-15.
@@ -88,7 +88,7 @@ A mapper looking at the window sees which features have gone longest without one
   - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
   - From the archive, the first frame came 127 to 377 ms after the program started, and the 30 tiles it needed were read in 115 ms.
   - Not measured: the window over the opening view of such an archive, at zoom 10; and A003's denser square.
-  - Over archives of zooms 10 to 16 of the box around Tokyo's mainland, the 95th percentile was 17.4 to 18.8 ms around Tokyo Station, on a machine with about three quarters of its CPU idle, 2026-10-25 ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
+  - Over archives of zooms 10 to 16 of the box around Tokyo's mainland, the 95th percentile around Tokyo Station was 18.4 and 18.6 ms over tylertoo's tiles, and 17.4 and 18.8 ms over tippecanoe's, on a machine with about three quarters of its CPU idle, 2026-10-25 ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
   - Risk: a slower machine, the program's own work on top of the trial's, or the tiles of zooms 10 to 14, which run up to 383 KB where zoom 16's stay under 150 KB in tylertoo's archive (0005), miss R008, noticed by the scale check.
 - **A005**: The extract's header states the date of its data. Source: the Kanto extract's header carries `osmosis_replication_timestamp=2026-10-03T20:20:50Z` (`osmium fileinfo`, run 2026-10-04).
   - A file written by hand carries the same header once osmium 1.19.1 converts it to PBF with `--output-header` (run 2026-10-11), so a fixture can state a date as an extract does.
@@ -143,7 +143,8 @@ A mapper looking at the window sees which features have gone longest without one
 - [0003. The program is written in Rust](../decisions/0003-rust-for-the-program.md)
 - [0004. The map is drawn in Rust, in a native window](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)
 - [0005. The features reach the window as vector tiles that tylertoo builds](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)
-- The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.- One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
+- The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
+- One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - Municipalities, by name or by the id of their boundary relation, rather than a centre point and a size, because the map is meant to grow by the municipalities added, up to about a prefecture.
   - The maintainer chose it (said 2026-10-24).
