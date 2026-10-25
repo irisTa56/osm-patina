@@ -32,5 +32,4 @@ An old edit does not prove the data is wrong, so the map points at candidates, w
 - **Location**: the map opens at the user's current location.
 - **Publishing**: anyone can open the map for an area they choose, without a developer's machine.
 
-Local map for one area comes first, and Publishing follows Location, because until Location the only map is of the municipalities a developer picked.
-The rest of the order is decided when Local map for one area ends.
+Local map for one area comes first, and the order of the rest is decided when it ends.
