@@ -7,11 +7,10 @@
 
 The phase was planned as a web page that draws the map with MapLibre GL JS, a library called from JavaScript ([phase 01 plan as it stood on 2026-10-13](https://github.com/irisTa56/osm-patina/blob/6436954/dev/plan/phase-01-local-map.md)).
 That plan's A004 had MapLibre GL JS draw the densest 5 km square counted, 55 MB of GeoJSON, within 1.8 to 2.3 seconds of the base map showing, on an Apple M3 (2026-10-04).
-The maintainer wants no JavaScript or TypeScript in the repository, in a state where it is plain that none is used rather than one where its absence has to be checked (said 2026-10-13).
-They had pictured a JavaScript library with none of its JavaScript in the commits, and named drawing in Rust as closer to their ideal should that not be possible (said 2026-10-14).
-A trial below showed that it is possible, and asked then to choose between the two, they chose drawing in Rust (said 2026-10-14).
+The repository is to hold no JavaScript or TypeScript, in a state where it is plain that none is used rather than one where its absence has to be checked, a preference.
+Whether third-party and generated JavaScript fits that preference depends on how it is taken in, so a JavaScript library whose JavaScript stays out of the commits can fit it too, and a trial below showed that such a page can be built.
 
-- [walkers](https://crates.io/crates/walkers), the map widget for egui that the maintainer's other tool, qol-reweight, already draws with, draws the base map's tiles, then each layer added to the map, then the names it gathered from all of them, and only then what a plugin draws (`src/map.rs` of 0.60.0, read 2026-10-13).
+- [walkers](https://crates.io/crates/walkers), the map widget for egui that [qol-reweight](https://github.com/irisTa56/qol-reweight) already draws with, draws the base map's tiles, then each layer added to the map, then the names it gathered from all of them, and only then what a plugin draws (`src/map.rs` of 0.60.0, read 2026-10-13).
   - A layer is anything that implements its public `Tiles` trait, and with its `mvt` feature a tile can be meshes with a colour on every vertex, and lines (`src/tiles.rs`, `src/lib.rs`, and `src/render/drawable.rs` of 0.60.0, read 2026-10-13).
 - A trial drew the 108,074 features of a 5 km square around Tokyo Station with walkers 0.61.0 and eframe 0.36.2 in a native window on an Apple M3, over OpenFreeMap's vector tiles, built in release, four runs on 2026-10-13 and 2026-10-14: one with walkers' bundled `openfreemap_bright` style, two with OpenFreeMap's `positron`, and one with `positron`'s expression for names rewritten.
   - The features were a layer of tiles the program built from osmium-tool's export, 30 of them in 66 to 68 ms.
@@ -32,12 +31,11 @@ The map is drawn in no page and no browser, and nothing the program runs is Java
 
 ## Rejected alternatives
 
-- **A page drawn by MapLibre GL JS, with no JavaScript in the commits**: it keeps what the plan had measured of MapLibre GL JS, and is the route the maintainer had pictured, but offered both, with drawing in Rust recommended, they chose drawing in Rust; it would also add the WebAssembly target, trunk, and a download of the library to the build.
-  - The maintainer left whether third-party and generated JavaScript is acceptable to how it is taken in (said 2026-10-14).
-- **A page with JavaScript written by hand**: the fewest tools, but the maintainer chose not to write any.
+- **A page drawn by MapLibre GL JS, with no JavaScript in the commits**: it keeps what the plan had measured of MapLibre GL JS, but the page would still run MapLibre GL JS's JavaScript and what wasm-bindgen and trunk generate, so that no JavaScript is used would rest on how those are taken in, where a native window runs none; its tests would read what is drawn through a headless browser, where a test can check as Rust values, with no browser, the meshes and lines that make up the layer walkers draws (above); and it would add the WebAssembly target, trunk, and a download of the library to the build.
+- **A page with JavaScript written by hand**: the fewest tools, but it puts JavaScript in the repository, against the preference above.
 - **The features drawn by a walkers plugin**: the simplest way to draw on a walkers map, but a plugin draws above the base map's names, which R010 has the other way round.
 - **The features drawn by walkers' own PMTiles source and a style**: it would need no layer of the program's own, but walkers 0.63.0 draws no circle layer, so no point (`src/mvt.rs`), and its PMTiles source reads no deeper than zoom 15 (`DEFAULT_MAX_ZOOM` in `src/pmtiles.rs`), where the archive of 0005 holds its features at zoom 16 (read 2026-10-15 and 24).
-- **Another map renderer in Rust**: none of those found was run, and walkers is the one the maintainer's other tool already uses.
+- **Another map renderer in Rust**: none of those found was run, and walkers is the one qol-reweight already draws with, whose window tests A011 of [phase 01's plan](../plan/phase-01-local-map.md#assumptions--risks) rests on.
 
 ## Consequences
 

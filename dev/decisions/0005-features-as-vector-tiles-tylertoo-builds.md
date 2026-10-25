@@ -9,9 +9,9 @@ osmium-tool cuts the area out of the extract and writes its features as GeoJSON 
 In 0004's trial, the program built that layer in memory from the GeoJSON.
 
 - Every area is cut by reading the whole extract and exported, about 50 seconds for a prefecture's worth of the Kanto extract ([phase 01's A007](../plan/phase-01-local-map.md#assumptions--risks)).
-  - The maintainer judged a wait of several seconds too long each time the map is moved to another place while in use (said 2026-10-14).
+  - A wait of several seconds each time the map is moved to another place is too long while the map is in use, a preference.
   - Tiles built once are opened again without cutting, and the window reads only the tiles in view, reading more as the map moves.
-- The maintainer looks at about 5 km in one sitting, zooming in for the smaller features, and wants the map to hold up to about a prefecture, growing by the municipalities added (said 2026-10-24).
+- A mapper looks at about 5 km in one sitting, zooming in for the smaller features (the maintainer's own use, confirmed 2026-10-24), and the map is to hold up to about a prefecture, growing by the municipalities added ([roadmap's scope](../ROADMAP.md#scope)).
 - The program reads osmium-tool's export and keeps the features the rules admit before the tiles are built ([phase 01's Dependencies](../plan/phase-01-local-map.md#dependencies)), so it writes them in whatever form the tool that builds the tiles reads.
 - Two tools build such tiles into one PMTiles archive:
   - [tippecanoe](https://github.com/felt/tippecanoe) reads GeoJSON, and has written PMTiles since 2.17 (its [CHANGELOG](https://github.com/felt/tippecanoe/blob/main/CHANGELOG.md), read 2026-10-25).
@@ -65,7 +65,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 ## Decision
 
 The area is the municipalities given, taken as the union of their boundaries in the extract, each without the boundaries inside it; osmium-tool cuts and exports it as 0002 says, writing each closed way once, as a line or an area by its tags; the program writes the features the rules admit as GeoParquet, and tylertoo builds them into one PMTiles archive in one run, which the window reads.
-The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view.
+The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view, by a preference for seeing the whole area in one view, and on the judgment, not checked against any source, that a mapper seldom looks for old features further out than that.
 Zoom 16 is the closest zoom it holds, the closest the trials over the box around Tokyo's mainland built: no tile there went over the size limit in either tool's build, where tiles at zooms 10 to 14 did; none at zoom 15 did either, so 15 might serve as the closest as well, which no build has tried.
 A closer zoom would hold the same features in about three times as many tiles for each zoom, as zoom 16 held of zoom 15's (21,990 against 6,922), where the window draws closer views by enlarging zoom 16's tiles, as 0004's trial did with zoom 14's; none was tried.
 Zoom 16 holds every feature, with no simplification there, but for any too small for a tile's grid to encode, which the report below shows; a closed way written once as such an area is then missing there whole.
@@ -87,14 +87,14 @@ Adding municipalities builds the archive again over all of them, rather than bui
 ## Rejected alternatives
 
 - **Every feature at zoom 14, with the tools' limits lifted**: the whole of a 5 km area would show every feature at once, but it holds every feature at the furthest zoom it draws, where tiles grow with the area's density, and thinning further out suits a map that is zoomed in on for the smaller features.
-- **A furthest zoom closer than 10, such as 12**: the archive would build faster and smaller, and its opening view would be lighter, but a prefecture's worth would no longer fit one view; offered both, with zoom 10 recommended, the maintainer chose zoom 10 (said 2026-10-24).
+- **A furthest zoom closer than 10, such as 12**: the archive would build faster and smaller, and its opening view would be lighter, but a prefecture's worth would no longer nearly fit one view.
 - **Thinning sparse and dense places alike**, as tippecanoe's `--drop-fraction-as-needed` or tylertoo's `--drop-gamma 1` does: a sparse place would lose features it has few of, where thinning dense places first takes them from where many remain.
 - **Keeping the largest of the features that compete, tylertoo's default**: the map zoomed out would keep its roads and larger areas, but an older feature could be hidden there behind a newer, larger one, which is what the map is for showing.
 - **Every feature kept at zoom 16**: a mapper zoomed in would never miss one, but tylertoo 0.8.0 offers no finer grid for a tile (`tylertoo tiles --help` names none), so it would take a closer zoom and about three times the tiles for each zoom added, for areas of 0.02 m² or less, under a pixel at zoom 16, where a pixel of a 256-pixel tile spans about 1.9 m at Tokyo's latitude, though walkers 0.63.0 lets the map zoom in to 26 (`src/zoom.rs`); the report names each such feature instead.
 - **Building the tiles with tippecanoe**: it reads the GeoJSON osmium-tool writes, so nothing would write GeoParquet, but it built the box around Tokyo's mainland in 608 to 612 seconds against tylertoo's 243, and its zoom 16 lacked 50 areas and 8 lines where tylertoo's lacked 15 areas; tippecanoe's `-pt` and `-d16` kept the small squares and short lines of the trials near Tokyo Station, short of ways at one position, but neither was run on the box.
 - **Building each municipality's archive alone and joining them**, with tippecanoe's `tile-join`, since tylertoo's `merge` joins only archives that hold disjoint tiles (`tylertoo merge --help`, 0.8.0, read 2026-10-25): adding a municipality would build only that one, but a feature crossing a boundary is in both cuts, so each feature would need a rule for which municipality owns it; the thinning further out would differ on either side of a boundary; and a newer extract rebuilds every municipality anyway to bring the dates up.
 - **A rectangle of up to 5 km around a chosen point, built and opened one at a time**: each build is quick, but the map holds one rectangle, and growing it brings back the overlap of the previous alternative.
-- **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view; offered the tiles and the layer built from the export, the maintainer chose the tiles (said 2026-10-15).
+- **osmium-tool's export kept as it is, and read whole by the window, as 0004's trial read it**: it needs no tool beyond osmium-tool, but every opening reads every feature the export holds, which grows with the area, where the window reads from an archive only the tiles in view.
 - **Tiling in the program itself**: cutting at a tile's edge, thinning, and encoding vector tiles would be the program's own work, which tylertoo already does; calling tylertoo's engine as a library from the program was not tried.
 
 ## Consequences
