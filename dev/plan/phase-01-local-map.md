@@ -184,12 +184,13 @@ A mapper looking at the window sees which features have gone longest without one
   - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
     - Two of the municipalities share an edge, and one lies apart from them.
-    - A tagged way and a multipolygon relation have nodes in both municipalities that share the edge, and each comes out once.
-    - A tagged way has one node inside the area and one outside it, and comes out whole.
-    - A boundary relation S1, with ways and nodes of its own, is a member of one municipality's relation and lies inside that municipality; a boundary relation S2 is a member of S1 and lies inside S1.
-    - A tagged object lies inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1.
-    - A tagged way has its two nodes at one position.
-    - A node, a way, and a multipolygon relation are written without a version or a timestamp.
+    - For each rule of R001, R002, and A002 the test verifies, the extract puts features on each side of it, these among them:
+      - a tagged object inside each municipality, the one apart included, and one with every node outside the area, in the gap between them;
+      - a tagged way and a multipolygon relation with nodes in both municipalities that share the edge, each coming out once;
+      - a tagged way with one node inside the area and one outside it, coming out whole;
+      - a boundary relation S1, with ways and nodes of its own, that is a member of one municipality's relation and lies inside that municipality, and a boundary relation S2 that is a member of S1 and lies inside S1, with a tagged object inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1;
+      - a tagged way with its two nodes at one position;
+      - and a node, a way, and a multipolygon relation written without a version or a timestamp.
     - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the way of two nodes at one position for as long as tippecanoe writes nothing for it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
