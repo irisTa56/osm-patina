@@ -74,7 +74,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A001**: A Geofabrik extract keeps every object's `version` and `timestamp`. Source: `osmium fileinfo -e` on the Kanto extract, run 2026-10-04 ([0001](../decisions/0001-regional-extract-as-data-source.md)).
   - Risk: features come out without a date and are drawn grey (R003), noticed by `osmium fileinfo -e` not printing `version+timestamp` for all objects.
 - **A002**: `osmium export` writes each feature's type, id, version, and timestamp. Source: a run of osmium 1.19.1 on a hand-written file, 2026-10-03.
-  - An object without a version or a timestamp comes out with 0 for it (run of 2026-10-25), and since OSM's versions start at 1 and its timestamps fall after 2004, the program takes 0 as unknown (R003, R004).
+  - A node, a way, a closed way, or a multipolygon relation without a version or a timestamp comes out with 0 for it (a run on a hand-written file, 2026-10-25), and since OSM's versions start at 1 and its timestamps fall after 2004, the program takes 0 as unknown (R003, R004).
   - Risk: the map has no number to colour by, noticed by the end-to-end test.
 - **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the square around Tokyo Station, which R008's interval between frames is stated for. Source: counts of the four squares.
   - The square around Tokyo Station held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04 (`osmium export` of each cut).
@@ -180,8 +180,9 @@ A mapper looking at the window sees which features have gone longest without one
 - **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
-  - A feature written but missing from zoom 16 is reported by the command that builds the archive, as a tagged way of two nodes at one position is, since tippecanoe writes nothing for it (0005).
+  - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, with a tagged way of two nodes at one position among its objects, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
+    - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the way of two nodes at one position for as long as tippecanoe writes nothing for it (0005).
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
@@ -221,7 +222,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
-  - The features the build reports missing from zoom 16 are counted and recorded, with what each was tagged as (R002).
+  - The features the build reports missing from zoom 16 are counted by type and recorded by id (R002).
   - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.

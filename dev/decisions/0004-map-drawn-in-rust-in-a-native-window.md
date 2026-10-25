@@ -36,7 +36,7 @@ The map is drawn in no page and no browser, and nothing the program runs is Java
   - The maintainer left whether third-party and generated JavaScript is acceptable to how it is taken in (said 2026-10-14).
 - **A page with JavaScript written by hand**: the fewest tools, but the maintainer chose not to write any.
 - **The features drawn by a walkers plugin**: the simplest way to draw on a walkers map, but a plugin draws above the base map's names, which R010 has the other way round.
-- **The features drawn by walkers' own PMTiles source and a style**: it would need no layer of the program's own, but walkers 0.63.0 draws no circle layer, so no point (`src/mvt.rs`), and its PMTiles source reads no deeper than zoom 15 (`DEFAULT_MAX_ZOOM` in `src/pmtiles.rs`), where the archive of 0005 holds every feature at zoom 16 (read 2026-10-15 and 24).
+- **The features drawn by walkers' own PMTiles source and a style**: it would need no layer of the program's own, but walkers 0.63.0 draws no circle layer, so no point (`src/mvt.rs`), and its PMTiles source reads no deeper than zoom 15 (`DEFAULT_MAX_ZOOM` in `src/pmtiles.rs`), where the archive of 0005 holds its features at zoom 16 (read 2026-10-15 and 24).
 - **Another map renderer in Rust**: none of those found was run, and walkers is the one the maintainer's other tool already uses.
 
 ## Consequences
