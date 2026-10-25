@@ -52,7 +52,7 @@ A mapper looking at the window sees which features have gone longest without one
   - While the map is panned and zoomed, the interval between frames is within 20 ms at the 95th percentile, both over the opening view of the whole area and around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square.
     - The opening view is held to it as well, since it is the first view the window shows and is drawn from the further zooms, whose tiles are the largest: in the archive of Tokyo's mainland, tiles at zooms 10 to 14 went over tylertoo's limit of 500 KB, and none at 15 or 16 did ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
 - **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)) and draws the map itself, in no page or browser and with no JavaScript ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)), and its automated checks run in `mise run pre-commit` and in CI.
-  - The tests that drive the window are meant to run in CI as well, and where that proves not to work, they run on a developer's machine alone, by a preference for keeping a test over keeping every test in CI.
+  - The tests that drive the window run on a developer's machine first, and in CI as far as its runner can run them, a preference that makes CI the best effort for these tests.
 - **R010**: The features are drawn over a base map in muted colours, with its place and street names above them.
   - Each name is the place's own, in its own script, drawn with a font found on the machine.
     - Where no font for a script is found, the window still opens, and says that some names cannot be drawn.
@@ -239,7 +239,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
-  - The features the build reports missing from zoom 16 are counted by type and recorded by id (R002), and before the phase closes the maintainer reads them and either accepts them or has tylertoo's options looked at for one that keeps them (A013).
+  - The features the build reports missing from zoom 16 are counted by type and recorded by id (R002), and before the phase closes they are read, and either kept as a limit or met by looking at tylertoo's options for one that keeps them (A013).
   - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.
