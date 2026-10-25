@@ -22,7 +22,7 @@ A mapper looking at the window sees which features have gone longest without one
   - tylertoo drops at zoom 16 an area too small for a tile's grid to encode (A013); which options to build with is left to building.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports the type and id of any that zoom 16 lacks.
   - Further out than zoom 16, tylertoo thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
-    - Of the features that compete for a place there, the one whose last edit is oldest is kept first.
+    - Of the features that compete for a place in tylertoo's thinning there, the one whose last edit is oldest is kept first, but for a tile over the size limit, which keeps its largest (0005).
   - A feature drawn further out is never joined with another, so what is drawn there is selected and coloured as the one object it was built from.
   - Further out than the furthest zoom the archive holds, zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - A feature is built from a tagged node, a tagged way, or a relation of type multipolygon or boundary.
