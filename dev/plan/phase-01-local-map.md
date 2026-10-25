@@ -29,8 +29,9 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature is in the area when one of its nodes is, and it is then drawn whole, past the area's edge.
     - One with every node outside is not drawn.
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
-  - A feature osmium-tool does not produce for the area is not drawn, by a preference for drawing what osmium-tool produces over recovering in this phase what it leaves out, on the judgment, not checked against any source, that features missing along the area's edge change little of what a mapper looks for.
+  - A feature osmium-tool does not produce for the area is not drawn, by a preference for drawing what osmium-tool produces over recovering in this phase what it leaves out, on the judgment, not checked against any source, that features missing along the area's edge change little of what a mapper looks for, and because a geometry that cannot be assembled has no valid shape for the map to draw.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
+    - `osmium export` omits a way of fewer than two nodes, and a closed way or a relation that cannot be assembled into a valid polygon ([its manual](https://docs.osmcode.org/osmium/latest/osmium-export.html), read 2026-10-25).
     - Completing boundary relations would bring in every member of each, and its manual warns that boundary relations "can be huge" ([`osmium extract`](https://docs.osmcode.org/osmium/latest/osmium-extract.html), read 2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
