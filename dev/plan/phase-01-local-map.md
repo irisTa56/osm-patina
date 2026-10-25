@@ -143,9 +143,7 @@ A mapper looking at the window sees which features have gone longest without one
 - [0003. The program is written in Rust](../decisions/0003-rust-for-the-program.md)
 - [0004. The map is drawn in Rust, in a native window](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)
 - [0005. The features reach the window as vector tiles that tylertoo builds](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)
-- The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
-  - The maintainer chose it for the Rust toolchain and osmium-tool (said 2026-10-13).
-- One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
+- The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.- One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
   - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - Municipalities, by name or by the id of their boundary relation, rather than a centre point and a size, because the map is meant to grow by the municipalities added, up to about a prefecture.
   - The maintainer chose it (said 2026-10-24).
