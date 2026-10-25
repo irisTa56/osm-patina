@@ -31,7 +31,8 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
   - A feature osmium-tool does not produce for the area is not drawn, by a preference for drawing what osmium-tool produces over recovering in this phase what it leaves out.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
-    - The first two lie across the area's edge, and are left out on the judgment, not checked against any source, that features missing there change little of what a mapper looks for.
+    - The first is not in the area by the rule above, which counts a feature in when one of its nodes is.
+    - The second lies across the area's edge, and is left out on the judgment, not checked against any source, that features missing there change little of what a mapper looks for.
       - Completing boundary relations would also bring in every member of each, and [`osmium extract`'s manual](https://docs.osmcode.org/osmium/latest/osmium-extract.html) warns that boundary relations "can be huge" (read 2026-10-25).
     - The third has no valid shape for the map to draw: `osmium export` omits a closed way or a relation that cannot be assembled into a valid polygon ([its manual](https://docs.osmcode.org/osmium/latest/osmium-export.html), read 2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
