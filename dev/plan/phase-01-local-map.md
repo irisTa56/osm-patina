@@ -17,8 +17,8 @@ A mapper looking at the window sees which features have gone longest without one
   - The area is the union of the municipalities' boundaries, whether or not they touch.
   - Where the whole area does not fit the window at the furthest zoom the archive holds, the window opens at that zoom over the area's centre.
   - Adding a municipality is adding it to the file and building the archive again over all of them; the program keeps no list of its own.
-- **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
-  - tippecanoe's options are chosen so that zoom 16 lacks none, since its defaults drop areas too small and lines too short to draw there (A013).
+- **R002**: The map draws the features in the area that the [roadmap's scope](../ROADMAP.md#scope) covers, each one once, every one of them at zoom 16 and closer but for any tippecanoe drops there, which the build reports ([0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+  - With tippecanoe's defaults, areas too small and lines too short to draw at zoom 16 are dropped there (A013); which options to build with is left to building.
   - The command that builds the archive compares the features it wrote with those zoom 16 holds, and reports any that zoom 16 lacks.
   - Further out than zoom 16, tippecanoe thins the features as 0005 describes, so one can be missing there until the map is zoomed in.
   - A small area tippecanoe draws there as a square larger than itself is still its own object, selected and coloured as that object.
@@ -30,8 +30,6 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
   - A feature osmium-tool does not produce for the area is not drawn, which the maintainer accepted as a limit of this phase on 2026-10-04.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
-  - A way whose nodes all lie at one position has no extent, so it is not drawn, and the command that builds the archive leaves it out before tippecanoe, which writes nothing for it (tippecanoe 2.79.0, 2026-10-25); the maintainer chose it (said 2026-10-25).
-    - Tokyo's prefecture, cut out of the Kanto extract, held no tagged way whose nodes all share one position (a scan of 2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
   - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date.
@@ -114,9 +112,9 @@ A mapper looking at the window sees which features have gone longest without one
   - The [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists no Mesa, Vulkan driver, or software rasterizer among its packages (image 20261004.327.1, read 2026-10-14), so CI has to install one.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
-- **A013**: tippecanoe builds a prefecture's worth into an archive that holds every feature at zoom 16, within about ten minutes. Source: the trial of a box around Tokyo's mainland in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 612 seconds, with every zoom 16 tile under the 500 KB over which tippecanoe thins a whole zoom.
-  - The features at zoom 16 were not counted there, and with tippecanoe's defaults small areas and short lines are dropped at the deepest zoom, which finer options keep (0005); which options to use is left to building.
-  - Risk: zoom 16 lacks some, or the options that keep them make the build miss R008's time, noticed by the build command's report (R002) and by the scale check.
+- **A013**: tippecanoe builds a prefecture's worth into an archive that holds at zoom 16 all but a few features too small to draw, within about ten minutes. Source: the trial of a box around Tokyo's mainland in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md), 612 seconds, with every zoom 16 tile under the 500 KB over which tippecanoe thins a whole zoom.
+  - The features at zoom 16 were not counted there; the 5 km square around Tokyo Station lost none at zoom 16 (0005).
+  - Risk: zoom 16 lacks more than a few, noticed by the build command's report (R002).
 - **A014**: mise's conda backend installs tippecanoe on CI's Linux runner as it does on macOS arm64. Source: it installed 2.79.0 on macOS arm64 (2026-10-15). Unverified on Linux.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md).
@@ -181,17 +179,16 @@ A mapper looking at the window sees which features have gone longest without one
 
 - **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
-  - A feature R002 says is not drawn is absent, and a tagged way whose nodes all lie at one position is neither in the archive nor reported.
-  - A feature written but missing from zoom 16 is reported by the command that builds the archive.
+  - A feature R002 says is not drawn is absent.
+  - A feature written but missing from zoom 16 is reported by the command that builds the archive, as a tagged way whose nodes all lie at one position is, since tippecanoe writes nothing for it (0005).
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, with a tagged way whose nodes all lie at one position among its objects, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
-    - Another run, in which zoom 16 lacks a feature the command wrote, reads the report.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
   - Check: a test runs the command that builds the archive each of those ways on the hand-written extract and reads the message.
 - **The window shows each feature by its last-edit date and leads from it to its object, with the data's date and OpenStreetMap's credit, and draws the features without the base map** — verifies R001, R002, R003, R004, R005, R006, R010, A005, A011, A012, A015.
   - The window opens showing the archive's whole area.
-  - At zoom 16 and closer, every feature is drawn.
+  - At zoom 16 and closer, every feature zoom 16 holds is drawn.
   - Further out than zoom 10, no feature is drawn, and the window says that zooming in shows them.
   - Built from municipalities too far apart to fit the window at zoom 10, the window opens at zoom 10 over the area's centre.
   - Points, lines, and areas are coloured by last-edit date on one scale, and a legend says which date each colour stands for.
@@ -224,7 +221,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Over the opening view and around Tokyo Station, while the map is panned and zoomed, the interval between frames keeps within R008's.
   - The window states the date the extract's header gives.
   - R002 and the rules account for every tagged object that goes into the build and is not among the features the archive's zoom 16 tiles hold.
-  - The build reports no feature missing from zoom 16 (R002, [0005](../decisions/0005-features-as-vector-tiles-tippecanoe-builds.md)).
+  - The features the build reports missing from zoom 16 are counted and recorded by kind (R002).
   - Check: on a developer's machine, with the window at R008's size, and with the machine and the number of features recorded.
     - `osmium fileinfo -e` on the Kanto extract prints `version+timestamp` for all objects and a replication timestamp.
     - Compare the date in the window with that replication timestamp.
