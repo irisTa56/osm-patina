@@ -29,17 +29,18 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature is in the area when one of its nodes is, and it is then drawn whole, past the area's edge.
     - One with every node outside is not drawn.
   - A feature outside that scope is not drawn, such as an administrative boundary or a feature tagged as indoor.
-  - A feature osmium-tool does not produce for the area is not drawn, which the maintainer accepted as a limit of this phase on 2026-10-04.
+  - A feature osmium-tool does not produce for the area is not drawn, by a preference for drawing what osmium-tool produces over recovering in this phase what it leaves out.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
+    - Completing boundary relations would bring in every member of each, and its manual warns that boundary relations "can be huge" ([`osmium extract`](https://docs.osmcode.org/osmium/latest/osmium-extract.html), read 2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
   - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date.
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - A version or a date the object lacks, as in an extract written without metadata, is shown as unknown.
-  - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
+  - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached.
   - Of several points or lines there, the nearest is selected, rather than whichever its tile happens to hold first, which differs by the tool that built the tiles (0005).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
-  - Where the extract's header gives no date, the window says that the data's date is unknown, rather than give the file's own date, which is when the file was written, usually near the day it was downloaded, and tells little of how old the data is; the maintainer chose it (said 2026-10-25).
+  - Where the extract's header gives no date, the window says that the data's date is unknown, rather than give the file's own date, which is when the file was written, usually near the day it was downloaded, and tells little of how old the data is.
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
   - The [Attribution Guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines) allow a credit to collapse on interaction (checked 2026-10-03), but one that stays needs no reading of those conditions.
 - **R007**: Nothing the phase commits reveals where a developer works, as [CLAUDE.md](../../CLAUDE.md#keeping-a-developers-location-private) requires.
@@ -49,9 +50,9 @@ A mapper looking at the window sees which features have gone longest without one
   - The archive is built within 15 minutes of its command starting, from an extract of about 500 MB.
   - Within 1 second of the other command starting, the window shows the features of its opening view.
   - While the map is panned and zoomed, the interval between frames is within 20 ms at the 95th percentile, both over the opening view of the whole area and around Tokyo Station at zoom 14 and closer, where about 108,000 features lie within a 5 km square.
-    - The maintainer chose to hold the opening view to it, where the further zooms' tiles are the largest (said 2026-10-24).
+    - The opening view is held to it as well, since it is the first view the window shows and is drawn from the further zooms, whose tiles are the largest: in the archive of Tokyo's mainland, tiles at zooms 10 to 14 went over tylertoo's limit of 500 KB, and none at 15 or 16 did ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
 - **R009**: The program is written in Rust ([0003](../decisions/0003-rust-for-the-program.md)) and draws the map itself, in no page or browser and with no JavaScript ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)), and its automated checks run in `mise run pre-commit` and in CI.
-  - The tests that drive the window are meant to run in CI as well, and where that proves not to work, the maintainer accepts running them on a developer's machine alone (said 2026-10-11 of tests that drove a page, and carried over to the window on 2026-10-14).
+  - The tests that drive the window are meant to run in CI as well, and where that proves not to work, they run on a developer's machine alone, by a preference for keeping a test over keeping every test in CI.
 - **R010**: The features are drawn over a base map in muted colours, with its place and street names above them.
   - Each name is the place's own, in its own script, drawn with a font found on the machine.
     - Where no font for a script is found, the window still opens, and says that some names cannot be drawn.
@@ -81,7 +82,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **A003**: The densest of the four 5 km squares counted holds about 158,000 features before the scope narrows them, half as many again as the square around Tokyo Station, which R008's interval between frames is stated for. Source: counts of the four squares.
   - The square around Tokyo Station held about 108,000 and a denser square in the same extract about 158,000 on 2026-10-04, as features of `osmium export` of each cut: the Tokyo Station square's given a list of area tags alone, which wrote each closed way once, and the denser square's given lists of line and area tags, which wrote 65 closed ways twice and left out closed ways whose tags were in neither list, so that it held 157,752 objects where the same cut exported with both settings `true` held 158,593.
   - A 5 km square in central London held about 151,000 on 2026-10-03, and another city centre about 92,000 on 2026-09-28 (Overpass counts by key).
-  - Risk: an area denser than the square around Tokyo Station, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since the maintainer chose not to hold such an area to R008 (said 2026-10-14); noticed by the map lagging when one is opened.
+  - Risk: an area denser than the square around Tokyo Station, such as the densest square counted, answers panning and zooming more slowly than R008's interval, which no check measures, since no trial has drawn so dense an area in the window (A004), so R008 is not stated for one; noticed by the map lagging when one is opened.
 - **A004**: walkers draws the features around Tokyo Station within R008's frame interval. Source: the trials in [0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md) and [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md), the 108,074 features of the 5 km square around it over OpenFreeMap's vector tiles while the map zoomed and moved by itself, walkers 0.61.0 and eframe 0.36.2 on an Apple M3, four runs from GeoJSON on 2026-10-13 and 2026-10-14 and two from a zoom 14 archive on 2026-10-15.
   - The 95th percentile between frames was 17.3 to 17.9 ms, the median 16.7 ms, which is the display's own rate.
   - The window's own work in a frame had a median of 0.15 ms, and of 4.2 to 4.6 ms once the base map's names were drawn in Japanese.
@@ -144,16 +145,12 @@ A mapper looking at the window sees which features have gone longest without one
 - [0005. The features reach the window as vector tiles that tylertoo builds](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)
 - The Rust toolchain, osmium-tool, and tylertoo at their latest releases rather than at fixed versions, because lychee and rumdl are declared that way, and CI installs the current release on each run, the weekly one included, so a release the checks fail on shows there.
 - One command that builds the archive and another that opens it, rather than one that does both, because an archive once built opens in under a second (A004) without cutting the extract again.
-  - The maintainer chose it, as closer to what the project aims at (said 2026-10-15), over the one command they had chosen on 2026-10-14, when nothing stood between cutting and drawing that could be kept.
 - Municipalities, by name or by the id of their boundary relation, rather than a centre point and a size, because the map is meant to grow by the municipalities added, up to about a prefecture.
-  - The maintainer chose it (said 2026-10-24).
 - The municipalities listed in a file the developer keeps outside the repository, rather than given as arguments each time, written into the archive, or kept by the program, because adding or removing one is then a line of that file, and the program keeps no state.
-  - The maintainer chose it (said 2026-10-25).
 - OpenFreeMap's `positron` style as the base map rather than OpenStreetMap's standard tiles or a self-hosted Protomaps archive, because it is grey, so the colours of R003 keep their meaning over it, it needs no key and no server, and it is a vector style, so its labels can sit above the features.
   - The standard tiles are coloured by kind of feature and are images, so their names cannot sit above the features (checked 2026-10-03).
   - A Protomaps archive is a file the developer downloads, cut with `pmtiles extract` from a planet build of about 120 GB, and keeps up to date, where OpenFreeMap's tiles are requested as the window needs them ([its downloads page](https://docs.protomaps.com/basemaps/downloads), read 2026-10-15).
-- Names in their own script rather than in Latin script alone, because a mapper in Japan reads names best in their local script, and a font for it is on the developer's macOS (A010).
-  - The maintainer chose it (said 2026-10-14).
+- Names in their own script rather than in Latin script alone, by a preference for names as they are written where the mapper is, which in Japan is Japanese, and a font for it is on the developer's macOS (A010).
 - An allow-list of tag keys rather than a deny-list, because `osmium export` turns a boundary relation into a polygon over everything inside it (run of 2026-10-03), and a key nobody thought to deny would do the same.
   - A feature the list admits is still left out when it is tagged as indoor, since a shop inside a building carries the same `shop` key as one on the street.
   - Which keys stand for each of the scope's kinds of feature is settled while building.
@@ -163,7 +160,7 @@ A mapper looking at the window sees which features have gone longest without one
     - what shows only while the base map's service answers, such as its own credit and its names, since a test that waited on that service would fail whenever it did not answer;
     - and what needs the stand-in area's data, which is not in the repository.
 - Test fixtures are OSM files written by hand rather than cut from a real area, because data cut from OSM would bring its licence into the repository.
-- The scale check and the screenshots use a stand-in area, Tokyo's mainland, every municipality of Tokyo but its islands, cut from Geofabrik's [Kanto extract](https://download.geofabrik.de/asia/japan/kanto.html), and the view around Tokyo Station the maintainer picked for the purpose, because they need real data and R007 rules out a developer's own area.
+- The scale check and the screenshots use a stand-in area, Tokyo's mainland, every municipality of Tokyo but its islands, cut from Geofabrik's [Kanto extract](https://download.geofabrik.de/asia/japan/kanto.html), and the view around Tokyo Station, a landmark well known enough that it says nothing of where a developer works, because they need real data and R007 rules out a developer's own area.
 
 ## Dependencies
 
@@ -178,7 +175,7 @@ A mapper looking at the window sees which features have gone longest without one
   - finding which feature lies under a point, for the selection of R004,
   - and finding a font on the machine for the names of R010.
 - **A software rasterizer on CI's runner**, for tests only: what the test that renders the window draws with there (A012), installed by the CI job, such as Mesa's Vulkan driver.
-  - The maintainer chose to try it on CI first (said 2026-10-14).
+  - It is tried on CI first, since a test left to a developer's machine leaves CI no longer checking what the window draws, such as the features while the base map's service does not answer.
 - **OpenFreeMap**: the base map's style and tiles, requested by the window while it is open.
 
 ## Done when

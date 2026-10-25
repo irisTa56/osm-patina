@@ -6,7 +6,7 @@
 ## Context
 
 The program turns OSM data into what the map draws.
-The maintainer chose the language on 2026-09-30 and gave the reasons on 2026-10-04: a preference for Rust, the speed of the finished pipeline, and the thought that what the Python library does today could be written in Rust as a crate.
+The language is chosen for three reasons: a preference for Rust; a preference for a fast finished pipeline, which Rust is expected to give, though no run has compared it with Python; and an intention to write in Rust, as a crate, what the Python library does today.
 
 - [`osmpbf`](https://docs.rs/osmpbf/0.3.8/osmpbf/) 0.3.8 reads PBF in Rust and exposes `version` and `timestamp` on every element (checked 2026-10-03).
 - No maintained Rust crate was found that offers the assembly of ways and multipolygon relations into geometry as a library ([0002](0002-osmium-tool-selects-and-assembles.md)).
