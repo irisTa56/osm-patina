@@ -115,9 +115,10 @@ A mapper looking at the window sees which features have gone longest without one
   - The [`ubuntu-24.04` runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), which CI's `ubuntu-latest` names, lists no Mesa, Vulkan driver, or software rasterizer among its packages (image 20261004.327.1, read 2026-10-14), so CI has to install one.
   - Risk: walkers' drawing does not come out in the image, noticed by the check of drawn features ending up done by hand.
   - Risk: the test cannot render on CI's runner, noticed by its failing in CI alone, which R009 then leaves to a developer's machine.
-- **A013**: tylertoo builds a prefecture's worth into an archive at zoom 10 to 16 within about five minutes, and zoom 16 holds every feature but an area too small for a tile's grid. Source: the trials in [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md), 243 seconds for a box around Tokyo's mainland, whose zoom 16 held all of its 5,616,809 objects, and a square of about 1 cm on a side dropped at zoom 16 from a hand-written file.
+- **A013**: tylertoo builds a prefecture's worth into an archive at zoom 10 to 16 within about five minutes, and zoom 16 holds every feature but areas too small for a tile's grid. Source: the trials in [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md), 243 seconds for a box around Tokyo's mainland from an export of 9,683,164 features, each tagged closed way in it twice, whose zoom 16 lacked only the area copies of 15 closed ways, of 0.0002 to 0.02 m², and a square of about 1 cm on a side dropped at zoom 16 from a hand-written file.
+  - Written once, as 0005 decides, such a closed way is lost from zoom 16 whole, which the build's report shows (R002).
   - Risk: zoom 16 lacks features a mapper would look for, noticed by the build command's report (R002) at the scale check; tylertoo's options are then looked at for one that keeps them.
-- **A014**: tylertoo installs on CI's Linux runner as it does on macOS arm64. Source: `cargo install --locked` built 0.8.0 on macOS arm64, with `protoc` (2026-10-25), and its releases attach built binaries for Linux (0005). Unverified on Linux.
+- **A014**: mise's `github` backend installs tylertoo from the binaries its release attaches, on CI's Linux runner and on macOS arm64. Source: 0.8.0's release attaches binaries for `aarch64-apple-darwin`, `x86_64-unknown-linux-gnu`, and `x86_64-unknown-linux-musl` (its release on GitHub, read 2026-10-25). Unverified: the trial built it with `cargo install --locked` instead, which needs `protoc` (0005), and installed nothing through mise.
   - Risk: the end-to-end test cannot run in CI, noticed by the job failing at install.
 - **A015**: The feature under a point can be found from the tile under it, within a millisecond. Source: 0.36 to 0.44 ms at one point in the trial in [0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md).
   - A tile holds each area cut at its edge, so the archive carries each area's whole size, which R004's rule ranks by.
@@ -166,7 +167,7 @@ A mapper looking at the window sees which features have gone longest without one
 ## Dependencies
 
 - **osmium-tool**: taking the municipalities' boundaries, selecting the area, and assembling geometry ([0002](../decisions/0002-osmium-tool-selects-and-assembles.md)), declared in `mise.toml` at its latest release, which was 1.19.1 on 2026-10-13, and installed by `mise install` through the conda backend.
-- **tylertoo**: building the area's features into a PMTiles archive ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)), declared in `mise.toml` at its latest release, which was 0.8.0 on 2026-10-25, and installed by `mise install`.
+- **tylertoo**: building the area's features into a PMTiles archive ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)), declared in `mise.toml` at its latest release, which was 0.8.0 on 2026-10-25, and installed by `mise install` through the `github` backend, from the binaries its releases attach.
 - **Rust toolchain**: building and testing the program, declared in `mise.toml` at its latest release.
 - **eframe 0.36 with egui and eframe's wgpu backend, on by default in 0.36.2, and walkers 0.61 with its `mvt` feature**: the window, and the map in it ([0004](../decisions/0004-map-drawn-in-rust-in-a-native-window.md)).
 - **The `pmtiles` and `mvt-reader` crates, at the releases walkers 0.61 depends on**: reading the archive's tiles ([0005](../decisions/0005-features-as-vector-tiles-tylertoo-builds.md)).
@@ -184,6 +185,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
   - A feature R002 says is not drawn is absent.
+  - Further out than zoom 16, each feature a tile holds is drawn from its own object alone, even in a tile that went over the size limit.
   - Every feature written but missing from zoom 16 is reported by the command that builds the archive, and no other is.
   - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold, 0 standing for a version or a timestamp the extract left out.
     - Two of the municipalities share an edge, and one lies apart from them.
@@ -192,11 +194,12 @@ A mapper looking at the window sees which features have gone longest without one
       - a tagged way and a multipolygon relation with nodes in both municipalities that share the edge, each coming out once;
       - a tagged way with one node inside the area and one outside it, coming out whole;
       - a boundary relation S1, with ways and nodes of its own, that is a member of one municipality's relation and lies inside that municipality, and a boundary relation S2 that is a member of S1 and lies inside S1, with a tagged object inside S2, one inside S1 but outside S2, and one inside the municipality but outside S1;
-      - a closed way tagged as a line and one tagged as an area, each coming out once;
+      - a closed way tagged as a line, one tagged as an area, one with tags of both, such as a fence around a field, and one with tags of neither, such as a part of a building, each coming out once;
       - a tagged way with its two nodes at one position;
       - an area of about 1 cm on a side;
       - and a node, a way, and a multipolygon relation written without a version or a timestamp.
     - It also reads the command's report and compares it with the features written that zoom 16 lacks, among them the area of about 1 cm for as long as tylertoo drops it (0005), and fails where zoom 16 lacks none, since the report would then go unchecked.
+    - It also builds the extract with a size limit small enough that a tile further out goes over it, and finds each feature that tile holds within the shape of the object it was built from.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
 - **A list with no municipality, one the extract does not hold, a name several boundaries share, or municipalities that overlap, is refused** — verifies R001, R007.
