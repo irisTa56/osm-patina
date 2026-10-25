@@ -38,7 +38,7 @@ In 0004's trial, the program built that layer in memory from the GeoJSON.
 
 The area is the municipalities given, taken as the union of their boundaries in the extract; osmium-tool cuts and exports it as 0002 says, the features the rules admit are kept, and tippecanoe builds them into one PMTiles archive in one run, which the window reads.
 The archive holds zooms 10 to 16; at zoom 10 a window of 1,280 points spans about 160 km at Tokyo's latitude, so a prefecture's worth nearly fits one view.
-Zoom 16 holds every feature, with no simplification there, and with tippecanoe's options chosen so that it drops none there, which its defaults would.
+Zoom 16 holds every feature, with no simplification there, and with tippecanoe's options chosen so that it drops none there, which its defaults would; a way whose nodes all lie at one position, which tippecanoe writes nothing for, is left out before it as the plan's R002 says.
 Further out, tippecanoe thins the features as its README describes (read 2026-10-24), in these ways among others:
 
 - it drops points everywhere, keeping 1 in 2.5 for each zoom out, by default;

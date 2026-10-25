@@ -31,7 +31,7 @@ A mapper looking at the window sees which features have gone longest without one
   - A feature osmium-tool does not produce for the area is not drawn, which the maintainer accepted as a limit of this phase on 2026-10-04.
     - The cases known are a feature with no node inside the area, a boundary relation that reaches past its edge, and a geometry that cannot be assembled (runs of osmium 1.19.1, 2026-10-03 and 2026-10-04).
   - A way whose nodes all lie at one position has no extent, so it is not drawn, and the command that builds the archive leaves it out before tippecanoe, which writes nothing for it (tippecanoe 2.79.0, 2026-10-25); the maintainer chose it (said 2026-10-25).
-    - Tokyo's extract held no tagged way of that kind (2026-10-25).
+    - Tokyo's prefecture, cut out of the Kanto extract, held no tagged way whose nodes all share one position (a scan of 2026-10-25).
 - **R003**: Each feature is coloured by the date of its last edit, on one scale shared by points, lines, and areas, and a legend says which date each colour stands for.
   - The date is the `timestamp` of the OSM object the feature was built from.
   - A feature whose object has no `timestamp`, as in an extract written without metadata, is drawn grey, which the legend gives as an unknown date.
@@ -181,9 +181,9 @@ A mapper looking at the window sees which features have gone longest without one
 
 - **The map's data holds the features R002 says are drawn, and no other** — verifies R001, R002, A002, A013, A017.
   - Each such feature is there once in every zoom 16 tile it reaches, with its type, id, version, and timestamp, and once among the features the program reads from the archive, its pieces joined by type and id.
-  - A feature R002 says is not drawn is absent.
+  - A feature R002 says is not drawn is absent, and a tagged way whose nodes all lie at one position is neither in the archive nor reported.
   - A feature written but missing from zoom 16 is reported by the command that builds the archive.
-  - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
+  - Check: an end-to-end test runs the command that builds the archive on a hand-written extract and three of its municipalities, two sharing an edge and one apart from them, with a tagged way whose nodes all lie at one position among its objects, reads the archive as the window would, without opening one, and compares what it holds with what the extract was written to hold.
     - Another run, in which zoom 16 lacks a feature the command wrote, reads the report.
 - **A change to the rules changes which features the same build of the program keeps** — verifies R011.
   - Check: the same test with a second set of rules, one added and one removed, compares the features that come out.
