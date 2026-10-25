@@ -37,6 +37,7 @@ A mapper looking at the window sees which features have gone longest without one
 - **R004**: Selecting a feature shows its type, id, version, and last-edit date, and a link to that object on openstreetmap.org.
   - A version or a date the object lacks, as in an extract written without metadata, is shown as unknown.
   - Where several features lie under the point selected, a point or a line is selected before any area, and of several areas the smallest as a whole, so that a building or a shop within a larger area can be reached; the maintainer chose it (said 2026-10-16).
+  - Of several points or lines there, the nearest is selected, rather than whichever its tile happens to hold first, which differs by the tool that built the tiles (0005); the maintainer chose it (said 2026-10-25).
 - **R005**: The window states the date of the data it shows, since the data is a day or more behind OSM ([0001](../decisions/0001-regional-extract-as-data-source.md)), and an archive is as old as the extract it was built from.
   - Where the extract's header gives no date, the window says that the data's date is unknown, rather than give the file's own date, which is when the file was written, usually near the day it was downloaded, and tells little of how old the data is; the maintainer chose it (said 2026-10-25).
 - **R006**: The map credits OpenStreetMap in one of its corners with "© OpenStreetMap contributors", linked to `https://www.openstreetmap.org/copyright`, beside the base map's own credit, and the credits never collapse.
@@ -210,6 +211,7 @@ A mapper looking at the window sees which features have gone longest without one
   - Selecting inside a small area that lies within a larger one, across a tile's edge, selects the small one.
   - Selecting where two areas overlap, neither within the other, at a point where the tile holds less of the larger one, selects the one smaller as a whole.
   - Selecting where a point or a line lies over an area selects the point or the line.
+  - Selecting between two lines, nearer one than the other, selects the nearer, whichever the tile holds first.
   - The window states the date of the data.
   - Built from an extract whose header gives no date, the window says that the data's date is unknown.
   - A feature whose object has no `timestamp` is drawn grey, and the legend gives grey as an unknown date.
