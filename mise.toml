@@ -37,10 +37,11 @@ git hook list pre-push 2>/dev/null | grep -qx secrets-push-scan || echo "warning
 # `shared-tasks:check` come from dotfiles' shared task library, whose
 # `tasks/README.md` is what to read before touching this: why `ref` is a full
 # sha on its `main`, and what an include that fails to load takes with it.
-# `shared-tasks:check` in CI says when the tasks on `main` differ from the pin's.
+# `shared-tasks:check` in CI says when the tasks on `main` differ from the pin's,
+# and pushes the moved pin to a branch to open a pull request from.
 [task_config]
 includes = [
-  "git::https://github.com/irisTa56/dotfiles.git//tasks?ref=632f99ccd6800b34c936b77a643ebcdbd76d1553",
+  "git::https://github.com/irisTa56/dotfiles.git//tasks?ref=3e686e17481efeb1fa1fe96d349a60dd4a858c6d",
 ]
 
 # `**`, not `*`: mise's `*` matches a single task segment, so `qa:*` would leave
