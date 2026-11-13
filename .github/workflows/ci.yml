@@ -138,5 +138,5 @@ jobs:
       - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           cache: false # as in `markdown-lint`
-          install: false # the task calls git and mise alone
+          install: false
       - run: mise run shared-tasks:check -- --bump
