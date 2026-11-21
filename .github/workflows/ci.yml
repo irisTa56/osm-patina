@@ -36,9 +36,7 @@ permissions:
 
 env:
   # mise.toml's `[hooks]` postinstall sets up the git hooks of a local checkout,
-  # which no job uses. Left on, it would register the pre-push scan in the
-  # `upstream-pin-check` job, where the push `--bump` makes would run that scan
-  # without the trufflehog it needs and be refused.
+  # which no job uses.
   MISE_NO_HOOKS: "1"
   # Each job installs the tools its own task calls and no other (`install_args`
   # below), so a tool added to mise.toml for another purpose costs no job here
